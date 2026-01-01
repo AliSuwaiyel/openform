@@ -1,11 +1,178 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { QuestionConfig, ThemeConfig, Json } from '@/lib/database.types'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { motion } from 'framer-motion'
-import { Star, Upload, Check, X, FileText, Image as ImageIcon } from 'lucide-react'
+import { Star, Upload, Check, X, FileText, Image as ImageIcon, Loader2, AlertCircle } from 'lucide-react'
+
+interface FileUploadValue {
+  name: string
+  url: string
+  type: string
+  size?: number
+}
+
+interface FileUploadQuestionProps {
+  question: QuestionConfig
+  value: FileUploadValue | null
+  onChange: (value: FileUploadValue | null) => void
+  theme: ThemeConfig
+}
+
+function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQuestionProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const handleFileSelect = useCallback(async (file: File) => {
+    setUploadError(null)
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        // If R2 is not configured, fall back to base64
+        if (response.status === 503 && !result.configured) {
+          // Fall back to base64 for local/demo usage
+          const reader = new FileReader()
+          reader.onload = () => {
+            onChange({
+              name: file.name,
+              type: file.type,
+              size: file.size,
+              url: reader.result as string, // base64 data URL
+            })
+            setIsUploading(false)
+          }
+          reader.onerror = () => {
+            setUploadError('Failed to read file')
+            setIsUploading(false)
+          }
+          reader.readAsDataURL(file)
+          return
+        }
+        
+        throw new Error(result.error || 'Upload failed')
+      }
+
+      // Success - store the R2 URL
+      onChange({
+        name: result.file.name,
+        type: result.file.type,
+        size: result.file.size,
+        url: result.url,
+      })
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : 'Upload failed')
+    } finally {
+      setIsUploading(false)
+    }
+  }, [onChange])
+
+  return (
+    <div>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) {
+            handleFileSelect(file)
+          }
+          // Reset input so same file can be selected again
+          e.target.value = ''
+        }}
+      />
+      
+      {value ? (
+        <div 
+          className="p-4 rounded-xl border-2 flex items-center gap-4"
+          style={{ borderColor: theme.primaryColor }}
+        >
+          <div 
+            className="w-12 h-12 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: `${theme.primaryColor}20` }}
+          >
+            {value.type?.startsWith('image/') ? (
+              <ImageIcon className="w-6 h-6" style={{ color: theme.primaryColor }} />
+            ) : (
+              <FileText className="w-6 h-6" style={{ color: theme.primaryColor }} />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium truncate" style={{ color: theme.textColor }}>
+              {value.name}
+            </p>
+            {value.size && (
+              <p className="text-sm opacity-50" style={{ color: theme.textColor }}>
+                {(value.size / 1024).toFixed(1)} KB
+              </p>
+            )}
+          </div>
+          <button
+            onClick={() => onChange(null)}
+            className="p-2 rounded-lg transition-colors hover:opacity-70"
+            style={{ color: theme.textColor }}
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      ) : isUploading ? (
+        <div 
+          className="w-full p-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-3"
+          style={{ 
+            borderColor: theme.primaryColor,
+            color: theme.textColor,
+          }}
+        >
+          <Loader2 className="w-8 h-8 animate-spin" style={{ color: theme.primaryColor }} />
+          <p className="font-medium">Uploading...</p>
+        </div>
+      ) : (
+        <div>
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full p-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-colors"
+            style={{ 
+              borderColor: uploadError ? '#EF4444' : `${theme.textColor}30`,
+              color: theme.textColor,
+            }}
+          >
+            <Upload className="w-8 h-8 opacity-50" />
+            <div className="text-center">
+              <p className="font-medium">Click to upload</p>
+              <p className="text-sm opacity-50 mt-1">
+                Images & PDFs up to {question.maxFileSize || 10}MB
+              </p>
+            </div>
+          </motion.button>
+          {uploadError && (
+            <div className="mt-3 flex items-center gap-2 text-sm" style={{ color: '#EF4444' }}>
+              <AlertCircle className="w-4 h-4" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface QuestionRendererProps {
   question: QuestionConfig
@@ -27,7 +194,6 @@ export function QuestionRenderer({
   onClearError
 }: QuestionRendererProps) {
   const [isFocused, setIsFocused] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const inputStyles = {
     borderColor: error ? '#EF4444' : isFocused ? theme.primaryColor : `${theme.textColor}30`,
@@ -292,81 +458,13 @@ export function QuestionRenderer({
       )
 
     case 'file_upload':
-      const fileValue = value as { name: string; url: string; type: string } | null
       return (
-        <div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,application/pdf"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) {
-                // For now, store file info (actual upload would need R2 integration)
-                const reader = new FileReader()
-                reader.onload = () => {
-                  onChange({
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    data: reader.result as string,
-                  })
-                }
-                reader.readAsDataURL(file)
-              }
-            }}
-          />
-          
-          {fileValue ? (
-            <div 
-              className="p-4 rounded-xl border-2 flex items-center gap-4"
-              style={{ borderColor: theme.primaryColor }}
-            >
-              <div 
-                className="w-12 h-12 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${theme.primaryColor}20` }}
-              >
-                {fileValue.type?.startsWith('image/') ? (
-                  <ImageIcon className="w-6 h-6" style={{ color: theme.primaryColor }} />
-                ) : (
-                  <FileText className="w-6 h-6" style={{ color: theme.primaryColor }} />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate" style={{ color: theme.textColor }}>
-                  {fileValue.name}
-                </p>
-              </div>
-              <button
-                onClick={() => onChange(null)}
-                className="p-2 rounded-lg hover:bg-opacity-10"
-                style={{ color: theme.textColor }}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          ) : (
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full p-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-colors"
-              style={{ 
-                borderColor: `${theme.textColor}30`,
-                color: theme.textColor,
-              }}
-            >
-              <Upload className="w-8 h-8 opacity-50" />
-              <div className="text-center">
-                <p className="font-medium">Click to upload</p>
-                <p className="text-sm opacity-50 mt-1">
-                  Images & PDFs up to {question.maxFileSize || 10}MB
-                </p>
-              </div>
-            </motion.button>
-          )}
-        </div>
+        <FileUploadQuestion
+          question={question}
+          value={value as FileUploadValue | null}
+          onChange={onChange}
+          theme={theme}
+        />
       )
 
     default:

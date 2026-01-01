@@ -1,18 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 
-// This is a placeholder for R2 file upload
-// You'll need to configure Cloudflare R2 credentials to enable actual file uploads
+// Check if R2 is configured
+function isR2Configured(): boolean {
+  return !!(
+    process.env.R2_ACCOUNT_ID &&
+    process.env.R2_ACCESS_KEY_ID &&
+    process.env.R2_SECRET_ACCESS_KEY &&
+    process.env.R2_BUCKET_NAME
+  )
+}
+
+// Create R2 client (lazy initialization)
+function getR2Client(): S3Client | null {
+  if (!isR2Configured()) return null
+  
+  return new S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+    },
+  })
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
     const formData = await request.formData()
     const file = formData.get('file') as File
     
@@ -23,39 +37,35 @@ export async function POST(request: NextRequest) {
     // Validate file type
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf']
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: 'Invalid file type' }, { status: 400 })
+      return NextResponse.json({ error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP, PDF' }, { status: 400 })
     }
 
     // Validate file size (10MB max)
     const maxSize = 10 * 1024 * 1024
     if (file.size > maxSize) {
-      return NextResponse.json({ error: 'File too large' }, { status: 400 })
+      return NextResponse.json({ error: 'File too large. Maximum size is 10MB' }, { status: 400 })
     }
 
-    // TODO: Implement actual R2 upload
-    // For now, we return a placeholder URL
-    // In production, you would:
-    // 1. Configure R2 credentials in environment variables
-    // 2. Use the AWS SDK to upload to R2
-    // 3. Return the public URL
-
-    /*
-    Example R2 upload implementation:
+    const r2 = getR2Client()
     
-    import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-    
-    const r2 = new S3Client({
-      region: 'auto',
-      endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-      },
-    })
+    if (!r2) {
+      // R2 not configured - return error
+      return NextResponse.json({ 
+        error: 'File storage not configured. Please set R2 environment variables.',
+        configured: false 
+      }, { status: 503 })
+    }
 
-    const key = `uploads/${user.id}/${Date.now()}-${file.name}`
+    // Generate unique filename
+    const timestamp = Date.now()
+    const randomId = Math.random().toString(36).substring(2, 8)
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+    const key = `uploads/${timestamp}-${randomId}-${sanitizedName}`
+    
+    // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer())
     
+    // Upload to R2
     await r2.send(new PutObjectCommand({
       Bucket: process.env.R2_BUCKET_NAME,
       Key: key,
@@ -63,13 +73,14 @@ export async function POST(request: NextRequest) {
       ContentType: file.type,
     }))
 
-    const url = `${process.env.R2_PUBLIC_URL}/${key}`
-    */
+    // Construct public URL
+    const publicUrl = process.env.R2_PUBLIC_URL 
+      ? `${process.env.R2_PUBLIC_URL}/${key}`
+      : `https://${process.env.R2_BUCKET_NAME}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${key}`
 
-    // Placeholder response
     return NextResponse.json({
       success: true,
-      message: 'File upload API is ready. Configure R2 credentials to enable uploads.',
+      url: publicUrl,
       file: {
         name: file.name,
         type: file.type,
@@ -82,3 +93,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// GET endpoint to check if R2 is configured
+export async function GET() {
+  return NextResponse.json({
+    configured: isR2Configured(),
+  })
+}
