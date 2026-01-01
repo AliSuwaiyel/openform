@@ -39,14 +39,14 @@ export function DashboardNav({ user }: DashboardNavProps) {
   const avatarUrl = user.user_metadata?.avatar_url
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
           <Logo href="/dashboard" />
           <div className="hidden md:flex items-center gap-6">
             <Link 
               href="/dashboard" 
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
               My Forms
             </Link>
@@ -55,7 +55,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
 
         <div className="flex items-center gap-4">
           <Link href="/forms/new">
-            <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
+            <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30 hover:-translate-y-0.5">
               Create Form
             </Button>
           </Link>
@@ -65,7 +65,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={avatarUrl} alt={user.email || 'User'} />
-                  <AvatarFallback className="bg-gradient-to-br from-violet-500 to-cyan-500 text-white">
+                  <AvatarFallback className="bg-blue-600 text-white font-medium">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
@@ -107,4 +107,3 @@ export function DashboardNav({ user }: DashboardNavProps) {
     </nav>
   )
 }
-

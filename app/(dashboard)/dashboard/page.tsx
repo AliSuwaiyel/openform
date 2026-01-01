@@ -39,11 +39,11 @@ export default async function DashboardPage() {
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Forms</h1>
-          <p className="text-gray-600 mt-1">Create and manage your forms</p>
+          <h1 className="text-2xl font-bold text-slate-900">My Forms</h1>
+          <p className="text-slate-600 mt-1">Create and manage your forms</p>
         </div>
         <Link href="/forms/new">
-          <Button className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700">
+          <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30 hover:-translate-y-0.5">
             <Plus className="w-4 h-4 mr-2" />
             Create Form
           </Button>
@@ -51,16 +51,16 @@ export default async function DashboardPage() {
       </div>
 
       {forms.length === 0 ? (
-        <Card className="p-16 text-center border-dashed border-2 border-violet-200/60 bg-gradient-to-br from-white via-violet-50/30 to-cyan-50/30">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-violet-100 to-cyan-100 flex items-center justify-center shadow-lg shadow-violet-500/10">
-            <FileText className="w-10 h-10 text-violet-500" />
+        <Card className="p-16 text-center border-dashed border-2 border-blue-200/60 bg-gradient-to-br from-white via-blue-50/30 to-sky-50/30">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-sky-100 flex items-center justify-center shadow-lg shadow-blue-500/10">
+            <FileText className="w-10 h-10 text-blue-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-3">Create your first form</h2>
-          <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">Create your first form</h2>
+          <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
             Build beautiful, engaging forms that people actually want to fill out. One question at a time.
           </p>
           <Link href="/forms/new">
-            <Button size="lg" className="bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700 shadow-lg shadow-violet-500/25">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-600/35 hover:-translate-y-0.5">
               <Plus className="w-5 h-5 mr-2" />
               Create your first form
             </Button>

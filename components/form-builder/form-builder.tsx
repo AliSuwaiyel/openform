@@ -10,11 +10,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -35,7 +33,6 @@ import {
   Save,
   Globe,
   X,
-  Check,
   ExternalLink,
   Copy,
   Settings,
@@ -163,9 +160,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
   const currentTheme = themes[form.theme as ThemePreset] || themes.minimal
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-slate-50">
       {/* Header */}
-      <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
+      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm">
@@ -181,10 +178,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 setForm({ ...form, title: e.target.value })
                 setHasUnsavedChanges(true)
               }}
-              className="text-lg font-semibold border-0 border-b-2 border-transparent bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-violet-500 hover:border-gray-300 px-1 pr-7 max-w-xs transition-colors"
+              className="text-lg font-semibold border-0 border-b-2 border-transparent bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-blue-500 hover:border-slate-300 px-1 pr-7 max-w-xs transition-colors"
               placeholder="Untitled Form"
             />
-            <Pencil className="w-3.5 h-3.5 text-gray-400 absolute right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity pointer-events-none" />
+            <Pencil className="w-3.5 h-3.5 text-slate-400 absolute right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity pointer-events-none" />
           </div>
           {form.status === 'published' && (
             <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
@@ -196,7 +193,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
           )}
           {hasUnsavedChanges && (
-            <span className="text-sm text-gray-500">Unsaved changes</span>
+            <span className="text-sm text-slate-500">Unsaved changes</span>
           )}
         </div>
 
@@ -229,7 +226,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             onClick={() => setShowPublishDialog(true)}
             className={form.status === 'published' 
               ? 'bg-amber-500 hover:bg-amber-600' 
-              : 'bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700'
+              : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
             }
           >
             <Globe className="w-4 h-4 mr-2" />
@@ -241,9 +238,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-80 bg-white border-r border-gray-200 flex flex-col shrink-0 overflow-hidden">
+        <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col overflow-hidden">
-            <div className="shrink-0 p-2 border-b border-gray-100">
+            <div className="shrink-0 p-2 border-b border-slate-100">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="questions" className="text-xs">
                   <FileText className="w-3 h-3 mr-1" />
@@ -261,10 +258,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             </div>
 
             <TabsContent value="questions" className="flex-1 flex flex-col mt-0 overflow-hidden data-[state=inactive]:hidden">
-              <div className="shrink-0 p-4 border-b border-gray-100">
+              <div className="shrink-0 p-4 border-b border-slate-100">
                 <Button 
                   onClick={() => setShowAddQuestion(true)}
-                  className="w-full bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
+                  className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Question
@@ -275,9 +272,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 <div className="p-2">
                   {questions.length === 0 ? (
                     <div className="text-center py-8 px-4">
-                      <FileText className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                      <p className="text-sm text-gray-500">No questions yet</p>
-                      <p className="text-xs text-gray-400 mt-1">Add your first question to get started</p>
+                      <FileText className="w-12 h-12 mx-auto text-slate-300 mb-3" />
+                      <p className="text-sm text-slate-500">No questions yet</p>
+                      <p className="text-xs text-slate-400 mt-1">Add your first question to get started</p>
                     </div>
                   ) : (
                     <Reorder.Group axis="y" values={questions} onReorder={handleReorder}>
@@ -292,29 +289,29 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                               className={`
                                 group p-3 rounded-lg cursor-pointer mb-2 border transition-all
                                 ${selectedQuestionId === question.id 
-                                  ? 'bg-violet-50 border-violet-200' 
-                                  : 'bg-white border-gray-100 hover:border-gray-200'
+                                  ? 'bg-blue-50 border-blue-200' 
+                                  : 'bg-white border-slate-100 hover:border-slate-200'
                                 }
                               `}
                               onClick={() => setSelectedQuestionId(question.id)}
                             >
                               <div className="flex items-start gap-2">
                                 <div className="mt-1 cursor-grab active:cursor-grabbing">
-                                  <GripVertical className="w-4 h-4 text-gray-300" />
+                                  <GripVertical className="w-4 h-4 text-slate-300" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-xs font-medium text-gray-400">
+                                    <span className="text-xs font-medium text-slate-400">
                                       {index + 1}
                                     </span>
-                                    <span className="text-xs text-gray-400 capitalize">
+                                    <span className="text-xs text-slate-400 capitalize">
                                       {question.type.replace('_', ' ')}
                                     </span>
                                     {question.required && (
                                       <span className="text-xs text-red-500">*</span>
                                     )}
                                   </div>
-                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                  <p className="text-sm font-medium text-slate-900 truncate">
                                     {question.title || 'Untitled question'}
                                   </p>
                                 </div>
@@ -327,7 +324,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                                     deleteQuestion(question.id)
                                   }}
                                 >
-                                  <Trash2 className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                                  <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-500" />
                                 </Button>
                               </div>
                             </motion.div>
@@ -355,8 +352,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                         className={`
                           p-3 rounded-lg border-2 transition-all text-left
                           ${form.theme === theme.id 
-                            ? 'border-violet-500 ring-2 ring-violet-200' 
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-blue-500 ring-2 ring-blue-200' 
+                            : 'border-slate-200 hover:border-slate-300'
                           }
                         `}
                       >
@@ -369,7 +366,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                             style={{ backgroundColor: theme.primaryColor }}
                           />
                         </div>
-                        <span className="text-xs font-medium text-gray-700">{theme.name}</span>
+                        <span className="text-xs font-medium text-slate-700">{theme.name}</span>
                       </button>
                     ))}
                   </div>
@@ -382,7 +379,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 <div>
                   <Label htmlFor="slug" className="text-sm font-medium">Form URL</Label>
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="text-sm text-gray-500">/f/</span>
+                    <span className="text-sm text-slate-500">/f/</span>
                     <Input
                       id="slug"
                       value={form.slug}
@@ -435,8 +432,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
         <div className="flex-1 flex overflow-hidden">
           {/* Question Editor */}
           {selectedQuestion && (
-            <div className="w-96 bg-white border-r border-gray-200 overflow-auto">
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="w-96 bg-white border-r border-slate-200 overflow-auto">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
                 <h3 className="font-medium">Edit Question</h3>
                 <Button 
                   variant="ghost" 
@@ -455,12 +452,12 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           )}
 
           {/* Preview */}
-          <div className="flex-1 overflow-auto bg-gray-100 p-8">
+          <div className="flex-1 overflow-auto bg-slate-100 p-8">
             <div className="max-w-2xl mx-auto">
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 border-b border-gray-200">
-                  <Eye className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-600">Preview</span>
+              <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-4">
+                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-200">
+                  <Eye className="w-4 h-4 text-slate-500" />
+                  <span className="text-sm font-medium text-slate-600">Preview</span>
                 </div>
                 <div 
                   className="min-h-[500px]"
@@ -496,11 +493,11 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
               <button
                 key={qt.type}
                 onClick={() => addQuestion(qt.type)}
-                className="p-4 rounded-lg border border-gray-200 hover:border-violet-300 hover:bg-violet-50 transition-all text-left group"
+                className="p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left group"
               >
-                <qt.icon className="w-6 h-6 text-gray-400 group-hover:text-violet-600 mb-2" />
-                <p className="font-medium text-sm text-gray-900">{qt.label}</p>
-                <p className="text-xs text-gray-500 mt-1">{qt.description}</p>
+                <qt.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2" />
+                <p className="font-medium text-sm text-slate-900">{qt.label}</p>
+                <p className="text-xs text-slate-500 mt-1">{qt.description}</p>
               </button>
             ))}
           </div>
@@ -522,8 +519,8 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             </DialogDescription>
           </DialogHeader>
           {form.status !== 'published' && (
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <code className="text-sm text-violet-600">
+            <div className="p-3 bg-slate-50 rounded-lg">
+              <code className="text-sm text-blue-600">
                 {typeof window !== 'undefined' ? window.location.origin : ''}/f/{form.slug}
               </code>
             </div>
@@ -537,7 +534,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
               disabled={isSaving}
               className={form.status === 'published' 
                 ? 'bg-amber-500 hover:bg-amber-600' 
-                : 'bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700'
+                : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
               }
             >
               {isSaving ? 'Saving...' : form.status === 'published' ? 'Unpublish' : 'Publish'}
@@ -548,4 +545,3 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
     </div>
   )
 }
-

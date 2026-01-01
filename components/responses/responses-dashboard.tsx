@@ -218,7 +218,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{form.title}</h1>
+              <h1 className="text-2xl font-bold text-slate-900">{form.title}</h1>
               {form.status === 'published' && (
                 <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
               )}
@@ -229,7 +229,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                 <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
               )}
             </div>
-            <p className="text-gray-600 mt-1">
+            <p className="text-slate-600 mt-1">
               {responses.length} {responses.length === 1 ? 'response' : 'responses'}
             </p>
           </div>
@@ -262,18 +262,18 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
       {/* Responses section */}
       {responses.length === 0 ? (
         <Card className="p-12 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-            <FileText className="w-8 h-8 text-gray-400" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
+            <FileText className="w-8 h-8 text-slate-400" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">No responses yet</h2>
-          <p className="text-gray-600 max-w-sm mx-auto">
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">No responses yet</h2>
+          <p className="text-slate-600 max-w-sm mx-auto">
             {form.status === 'published' 
               ? 'Share your form to start collecting responses'
               : 'Publish your form to start collecting responses'
             }
           </p>
           {form.status === 'published' && (
-            <Button onClick={copyFormLink} className="mt-6">
+            <Button onClick={copyFormLink} className="mt-6 bg-blue-600 hover:bg-blue-700">
               <Copy className="w-4 h-4 mr-2" />
               Copy form link
             </Button>
@@ -284,7 +284,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
           {/* Toolbar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
                 placeholder="Search responses..."
                 value={searchQuery}
@@ -307,7 +307,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                     <TableHead className="w-[180px] sticky left-0 bg-white z-10 pl-6">Submitted</TableHead>
                     {questions.map((question, index) => (
                       <TableHead key={question.id} className="min-w-[200px]">
-                        <span className="text-gray-400 mr-2">{index + 1}.</span>
+                        <span className="text-slate-400 mr-2">{index + 1}.</span>
                         {question.title || 'Untitled'}
                         {question.required && <span className="text-red-500 ml-1">*</span>}
                       </TableHead>
@@ -334,7 +334,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                               <TableCell key={question.id} className="max-w-[300px]">
                                 <button
                                   onClick={() => setFilePreview(file)}
-                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-50 hover:bg-violet-100 text-violet-700 transition-colors text-sm group"
+                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors text-sm group"
                                 >
                                   {isImage ? (
                                     <ImageIcon className="w-4 h-4" />
@@ -386,7 +386,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
           {filteredResponses.length === 0 && searchQuery && (
             <div className="text-center py-12">
-              <p className="text-gray-500">No responses match your search</p>
+              <p className="text-slate-500">No responses match your search</p>
             </div>
           )}
         </>
@@ -422,9 +422,9 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {filePreview?.type?.startsWith('image/') ? (
-                <ImageIcon className="w-5 h-5 text-violet-600" />
+                <ImageIcon className="w-5 h-5 text-blue-600" />
               ) : (
-                <File className="w-5 h-5 text-violet-600" />
+                <File className="w-5 h-5 text-blue-600" />
               )}
               <span className="truncate">{filePreview?.name}</span>
             </DialogTitle>
@@ -447,7 +447,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                 title={filePreview.name}
               />
             ) : (
-              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+              <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                 <File className="w-16 h-16 mb-4 opacity-50" />
                 <p>Preview not available for this file type</p>
               </div>
@@ -460,13 +460,14 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
             </Button>
             {filePreview?.url ? (
               <a href={filePreview.url} target="_blank" rel="noopener noreferrer" download={filePreview.name}>
-                <Button>
+                <Button className="bg-blue-600 hover:bg-blue-700">
                   <Download className="w-4 h-4 mr-2" />
                   Download
                 </Button>
               </a>
             ) : (
               <Button
+                className="bg-blue-600 hover:bg-blue-700"
                 onClick={() => {
                   if (filePreview?.data) {
                     const link = document.createElement('a')
@@ -486,4 +487,3 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
     </div>
   )
 }
-

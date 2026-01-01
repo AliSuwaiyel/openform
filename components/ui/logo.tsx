@@ -20,19 +20,19 @@ export function Logo({ href = '/', size = 'md', className }: LogoProps) {
     <span
       className={cn(
         sizes[size],
-        'font-bold tracking-tight bg-gradient-to-r from-violet-600 to-blue-500 bg-clip-text text-transparent',
-        'hover:from-violet-500 hover:to-blue-400 transition-all',
+        'font-bold tracking-tight text-blue-600',
+        'hover:text-blue-500 transition-colors',
         className
       )}
     >
       Open
-      <span className="font-extrabold">Form</span>
+      <span className="font-extrabold text-slate-900">Form</span>
     </span>
   )
 
   if (href) {
     return (
-      <Link href={href} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 rounded">
+      <Link href={href} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded">
         {content}
       </Link>
     )

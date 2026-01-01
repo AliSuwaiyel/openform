@@ -39,8 +39,8 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
     <div className="p-4 space-y-6">
       {/* Question Type Badge */}
       <div className="flex items-center gap-2">
-        {typeInfo && <typeInfo.icon className="w-4 h-4 text-violet-600" />}
-        <span className="text-sm font-medium text-gray-600">{typeInfo?.label}</span>
+        {typeInfo && <typeInfo.icon className="w-4 h-4 text-blue-600" />}
+        <span className="text-sm font-medium text-slate-600">{typeInfo?.label}</span>
       </div>
 
       {/* Question Title */}
@@ -59,7 +59,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
       {/* Description */}
       <div>
         <Label htmlFor="description" className="text-sm font-medium">
-          Description <span className="text-gray-400 font-normal">(optional)</span>
+          Description <span className="text-slate-400 font-normal">(optional)</span>
         </Label>
         <Textarea
           id="description"
@@ -84,7 +84,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
                 className="flex items-center gap-2"
               >
                 <div className="cursor-grab active:cursor-grabbing">
-                  <GripVertical className="w-4 h-4 text-gray-300" />
+                  <GripVertical className="w-4 h-4 text-slate-300" />
                 </div>
                 <Input
                   value={option}
@@ -99,7 +99,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
                   className="h-8 w-8 p-0"
                   disabled={(question.options?.length || 0) <= 1}
                 >
-                  <X className="w-4 h-4 text-gray-400" />
+                  <X className="w-4 h-4 text-slate-400" />
                 </Button>
               </div>
             ))}
@@ -136,7 +136,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
           <Label className="text-sm font-medium mb-3 block">Rating Scale</Label>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="minValue" className="text-xs text-gray-500">Min</Label>
+              <Label htmlFor="minValue" className="text-xs text-slate-500">Min</Label>
               <Input
                 id="minValue"
                 type="number"
@@ -148,7 +148,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="maxValue" className="text-xs text-gray-500">Max</Label>
+              <Label htmlFor="maxValue" className="text-xs text-slate-500">Max</Label>
               <Input
                 id="maxValue"
                 type="number"
@@ -168,7 +168,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
           <Label className="text-sm font-medium mb-3 block">Scale Range</Label>
           <div className="flex items-center gap-4">
             <div className="flex-1">
-              <Label htmlFor="minValue" className="text-xs text-gray-500">Min</Label>
+              <Label htmlFor="minValue" className="text-xs text-slate-500">Min</Label>
               <Input
                 id="minValue"
                 type="number"
@@ -180,7 +180,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
               />
             </div>
             <div className="flex-1">
-              <Label htmlFor="maxValue" className="text-xs text-gray-500">Max</Label>
+              <Label htmlFor="maxValue" className="text-xs text-slate-500">Max</Label>
               <Input
                 id="maxValue"
                 type="number"
@@ -199,7 +199,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
         <div className="space-y-4">
           <div>
             <Label className="text-sm font-medium mb-2 block">Allowed file types</Label>
-            <p className="text-sm text-gray-500">Images and PDFs are allowed</p>
+            <p className="text-sm text-slate-500">Images and PDFs are allowed</p>
           </div>
           <div>
             <Label htmlFor="maxFileSize" className="text-sm font-medium">Max file size (MB)</Label>
@@ -222,7 +222,7 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
       <div className="flex items-center justify-between">
         <div>
           <Label className="text-sm font-medium">Required</Label>
-          <p className="text-xs text-gray-500">Respondents must answer this question</p>
+          <p className="text-xs text-slate-500">Respondents must answer this question</p>
         </div>
         <Switch
           checked={question.required}
@@ -244,4 +244,3 @@ export function QuestionEditor({ question, onUpdate, onDelete }: QuestionEditorP
     </div>
   )
 }
-

@@ -56,27 +56,34 @@ export default function LoginPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-cyan-50">
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Background */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.12) 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), linear-gradient(to bottom, #f8faff 0%, #ffffff 100%)",
+          }}
+        />
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md px-8 py-12 text-center"
+          className="w-full max-w-md px-8 py-12 text-center relative z-10"
         >
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/25">
             <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-          <p className="text-gray-600 mb-6">
-            We&apos;ve sent a magic link to <strong className="text-gray-900">{email}</strong>
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h1>
+          <p className="text-slate-600 mb-6">
+            We&apos;ve sent a magic link to <strong className="text-slate-900">{email}</strong>
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Click the link in your email to sign in. You can close this tab.
           </p>
           <button
             onClick={() => setEmailSent(false)}
-            className="mt-6 text-sm text-violet-600 hover:text-violet-700 font-medium"
+            className="mt-6 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             Use a different email
           </button>
@@ -86,26 +93,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-cyan-50">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background */}
+      <div 
+        className="absolute inset-0"
+        style={{
+          background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.12) 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), linear-gradient(to bottom, #f8faff 0%, #ffffff 100%)",
+        }}
+      />
+      
+      {/* Subtle grid pattern */}
+      <div 
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md px-8"
+        className="w-full max-w-md px-8 relative z-10"
       >
         <div className="text-center mb-8">
           <div className="flex justify-center">
             <Logo href="/" size="lg" />
           </div>
-          <p className="mt-3 text-gray-600">Create beautiful forms in minutes</p>
+          <p className="mt-3 text-slate-600">Create beautiful forms in minutes</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
+        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
           <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
             variant="outline"
-            className="w-full h-12 text-base font-medium border-gray-200 hover:bg-gray-50"
+            className="w-full h-12 text-base font-medium border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
               <path
@@ -130,14 +153,14 @@ export default function LoginPage() {
 
           <div className="relative my-6">
             <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-sm text-gray-500">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-sm text-slate-500">
               or
             </span>
           </div>
 
           <form onSubmit={handleMagicLink} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700">Email address</Label>
+              <Label htmlFor="email" className="text-slate-700">Email address</Label>
               <Input
                 id="email"
                 type="email"
@@ -145,13 +168,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={isLoading}
-                className="h-12 text-base"
+                className="h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 text-base font-medium bg-gradient-to-r from-violet-600 to-cyan-600 hover:from-violet-700 hover:to-cyan-700"
+              className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30"
             >
               {isLoading ? (
                 <span className="flex items-center">
@@ -168,14 +191,13 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-6 text-center text-sm text-slate-500">
           By continuing, you agree to our{' '}
-          <a href="#" className="text-violet-600 hover:text-violet-700">Terms of Service</a>
+          <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">Terms of Service</a>
           {' '}and{' '}
-          <a href="#" className="text-violet-600 hover:text-violet-700">Privacy Policy</a>
+          <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">Privacy Policy</a>
         </p>
       </motion.div>
     </div>
   )
 }
-

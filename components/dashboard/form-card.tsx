@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -33,7 +32,7 @@ function getStatusBadge(status: FormStatus) {
     case 'published':
       return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Published</Badge>
     case 'draft':
-      return <Badge variant="secondary" className="bg-gray-100 text-gray-600">Draft</Badge>
+      return <Badge variant="secondary" className="bg-slate-100 text-slate-600">Draft</Badge>
     case 'closed':
       return <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
   }
@@ -52,7 +51,7 @@ function getStatusColor(status: FormStatus) {
     case 'published':
       return 'from-emerald-400 to-teal-500'
     case 'draft':
-      return 'from-gray-300 to-gray-400'
+      return 'from-slate-300 to-slate-400'
     case 'closed':
       return 'from-amber-400 to-orange-500'
   }
@@ -66,7 +65,7 @@ export function FormCard({ form, responseCount }: FormCardProps) {
   }
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg hover:shadow-violet-500/10 transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-gray-200/60">
+    <Card className="overflow-hidden hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-0.5 bg-white/80 backdrop-blur-sm border-slate-200/60">
       {/* Color accent bar */}
       <div className={`h-1 bg-gradient-to-r ${getStatusColor(form.status)}`} />
       <div className="p-6">
@@ -74,11 +73,11 @@ export function FormCard({ form, responseCount }: FormCardProps) {
         <div className="flex-1 min-w-0">
           <Link 
             href={`/forms/${form.id}/edit`}
-            className="text-lg font-semibold text-gray-900 hover:text-violet-600 truncate block"
+            className="text-lg font-semibold text-slate-900 hover:text-blue-600 truncate block transition-colors"
           >
             {form.title || 'Untitled Form'}
           </Link>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             Updated {formatDate(form.updated_at)}
           </p>
         </div>
@@ -124,21 +123,21 @@ export function FormCard({ form, responseCount }: FormCardProps) {
 
       <div className="flex items-center justify-between">
         {getStatusBadge(form.status)}
-        <div className="flex items-center gap-1 text-sm text-gray-500">
+        <div className="flex items-center gap-1 text-sm text-slate-500">
           <BarChart3 className="w-4 h-4" />
           <span>{responseCount} responses</span>
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center gap-2">
+      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2">
         <Link href={`/forms/${form.id}/edit`} className="flex-1">
-          <Button variant="outline" size="sm" className="w-full hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200">
+          <Button variant="outline" size="sm" className="w-full hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 transition-colors">
             <Pencil className="w-3 h-3 mr-2" />
             Edit
           </Button>
         </Link>
         <Link href={`/forms/${form.id}/responses`} className="flex-1">
-          <Button variant="outline" size="sm" className="w-full hover:bg-cyan-50 hover:text-cyan-700 hover:border-cyan-200">
+          <Button variant="outline" size="sm" className="w-full hover:bg-sky-50 hover:text-sky-700 hover:border-sky-200 transition-colors">
             <BarChart3 className="w-3 h-3 mr-2" />
             Responses
           </Button>
@@ -148,4 +147,3 @@ export function FormCard({ form, responseCount }: FormCardProps) {
     </Card>
   )
 }
-
