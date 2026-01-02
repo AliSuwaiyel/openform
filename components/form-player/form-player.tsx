@@ -7,7 +7,7 @@ import { getTheme, getThemeCSSVariables } from '@/lib/themes'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
-import { ChevronUp, ChevronDown, Check, ArrowRight } from 'lucide-react'
+import { ChevronUp, ChevronDown, Check, ArrowRight, ArrowLeft } from 'lucide-react'
 import { QuestionRenderer } from './question-renderer'
 import { toast } from 'sonner'
 
@@ -27,7 +27,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [direction, setDirection] = useState(0)
-  
+
   const containerRef = useRef<HTMLDivElement>(null)
   const skipNextValidationRef = useRef(false)
 
@@ -38,17 +38,17 @@ export function FormPlayer({ form }: FormPlayerProps) {
 
   const validateCurrentQuestion = useCallback(() => {
     if (!currentQuestion) return true
-    
+
     const answer = answers[currentQuestion.id]
-    
+
     if (currentQuestion.required) {
       if (answer === undefined || answer === null || answer === '') {
-        setErrors({ ...errors, [currentQuestion.id]: 'This field is required' })
+        setErrors({ ...errors, [currentQuestion.id]: 'هذا الحقل مطلوب' })
         return false
       }
-      
+
       if (Array.isArray(answer) && answer.length === 0) {
-        setErrors({ ...errors, [currentQuestion.id]: 'Please select at least one option' })
+        setErrors({ ...errors, [currentQuestion.id]: 'يرجى اختيار خيار واحد على الأقل' })
         return false
       }
     }
@@ -57,7 +57,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
     if (answer && currentQuestion.type === 'email') {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(String(answer))) {
-        setErrors({ ...errors, [currentQuestion.id]: 'Please enter a valid email address' })
+        setErrors({ ...errors, [currentQuestion.id]: 'يرجى إدخال عنوان بريد إلكتروني صالح' })
         return false
       }
     }
@@ -66,7 +66,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
       try {
         new URL(String(answer))
       } catch {
-        setErrors({ ...errors, [currentQuestion.id]: 'Please enter a valid URL' })
+        setErrors({ ...errors, [currentQuestion.id]: 'يرجى إدخال رابط صالح' })
         return false
       }
     }
@@ -74,7 +74,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
     if (answer && currentQuestion.type === 'phone') {
       const phoneRegex = /^[+]?[\d\s\-().]+$/
       if (!phoneRegex.test(String(answer))) {
-        setErrors({ ...errors, [currentQuestion.id]: 'Please enter a valid phone number' })
+        setErrors({ ...errors, [currentQuestion.id]: 'يرجى إدخال رقم هاتف صالح' })
         return false
       }
     }
@@ -90,9 +90,9 @@ export function FormPlayer({ form }: FormPlayerProps) {
     // Check both the parameter and the ref for skip validation
     const shouldSkip = skipValidation || skipNextValidationRef.current
     skipNextValidationRef.current = false // Reset the ref
-    
+
     if (!shouldSkip && !validateCurrentQuestion()) return
-    
+
     if (isLastQuestion) {
       handleSubmit()
     } else {
@@ -108,9 +108,9 @@ export function FormPlayer({ form }: FormPlayerProps) {
 
   const handleSubmit = async () => {
     if (!validateCurrentQuestion()) return
-    
+
     setIsSubmitting(true)
-    
+
     const insertData = {
       form_id: form.id,
       answers: answers,
@@ -120,7 +120,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
       .insert(insertData as never)
 
     if (error) {
-      toast.error('Failed to submit response')
+      toast.error('فشل إرسال الرد')
       setIsSubmitting(false)
     } else {
       setIsSubmitted(true)
@@ -141,7 +141,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isSubmitted || isSubmitting) return
-      
+
       if (e.key === 'Enter' && !e.shiftKey) {
         // Don't submit on enter for textarea
         if (currentQuestion?.type === 'long_text') {
@@ -154,12 +154,12 @@ export function FormPlayer({ form }: FormPlayerProps) {
         e.preventDefault()
         goToNext()
       }
-      
+
       if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
         e.preventDefault()
         goToPrevious()
       }
-      
+
       if (e.key === 'ArrowDown') {
         e.preventDefault()
         goToNext()
@@ -178,17 +178,17 @@ export function FormPlayer({ form }: FormPlayerProps) {
 
     const handleWheel = (e: WheelEvent) => {
       if (isSubmitted || isSubmitting) return
-      
+
       // Don't interfere with scrollable inputs like textarea
       const target = e.target as HTMLElement
       if (target.tagName === 'TEXTAREA') return
-      
+
       const now = Date.now()
       if (now - lastScrollTime < scrollThreshold) return
-      
+
       // Check if scroll delta is significant enough
       if (Math.abs(e.deltaY) < deltaThreshold) return
-      
+
       if (e.deltaY > 0) {
         // Scrolling down - go to next question
         goToNext()
@@ -196,7 +196,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
         // Scrolling up - go to previous question
         goToPrevious()
       }
-      
+
       lastScrollTime = now
     }
 
@@ -207,13 +207,14 @@ export function FormPlayer({ form }: FormPlayerProps) {
   // Thank you screen
   if (isSubmitted) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center p-6"
-        style={{ 
+        style={{
           ...themeStyles,
           backgroundColor: theme.backgroundColor,
           fontFamily: theme.fontFamily,
         }}
+        dir="rtl"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -229,19 +230,19 @@ export function FormPlayer({ form }: FormPlayerProps) {
           >
             <Check className="w-10 h-10" style={{ color: theme.primaryColor }} />
           </motion.div>
-          <h1 
+          <h1
             className="text-3xl md:text-4xl font-bold mb-4"
             style={{ color: theme.textColor }}
           >
             {form.thank_you_message}
           </h1>
-          <p 
+          <p
             className="text-lg opacity-70"
             style={{ color: theme.textColor }}
           >
-            Your response has been recorded.
+            تم تسجيل ردك بنجاح.
           </p>
-          
+
           {/* OpenForm branding */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -249,15 +250,15 @@ export function FormPlayer({ form }: FormPlayerProps) {
             transition={{ delay: 0.5 }}
             className="mt-12"
           >
-            <a 
+            <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm opacity-50 hover:opacity-70 transition-opacity"
               style={{ color: theme.textColor }}
             >
-              <span>Made with</span>
-              <span className="font-semibold">OpenForm</span>
+              <span>صنع بواسطة</span>
+              <span className="font-semibold">أوبن فورم</span>
             </a>
           </motion.div>
         </motion.div>
@@ -268,15 +269,16 @@ export function FormPlayer({ form }: FormPlayerProps) {
   // Empty form
   if (questions.length === 0) {
     return (
-      <div 
+      <div
         className="min-h-screen flex items-center justify-center p-6"
-        style={{ 
+        style={{
           backgroundColor: theme.backgroundColor,
           fontFamily: theme.fontFamily,
         }}
+        dir="rtl"
       >
         <p style={{ color: theme.textColor }} className="opacity-50">
-          This form has no questions yet.
+          هذا النموذج لا يحتوي على أسئلة بعد.
         </p>
       </div>
     )
@@ -298,21 +300,22 @@ export function FormPlayer({ form }: FormPlayerProps) {
   }
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="min-h-screen flex flex-col"
-      style={{ 
+      style={{
         ...themeStyles,
         backgroundColor: theme.backgroundColor,
         fontFamily: theme.fontFamily,
       }}
+      dir="rtl"
     >
       {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 z-50">
-        <Progress 
-          value={progress} 
+        <Progress
+          value={progress}
           className="h-1 rounded-none"
-          style={{ 
+          style={{
             backgroundColor: `${theme.primaryColor}20`,
           }}
           indicatorStyle={{
@@ -322,7 +325,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 flex items-center justify-center p-6 pt-12">
+      <main className="flex-1 flex items-center justify-center p-6 pt-12 text-right">
         <div className="w-full max-w-2xl">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
@@ -335,37 +338,37 @@ export function FormPlayer({ form }: FormPlayerProps) {
               transition={{ duration: 0.3, ease: 'easeInOut' }}
             >
               {/* Question number */}
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
-                className="mb-6 flex items-center gap-2"
+                className="mb-6 flex items-center gap-2 justify-end"
               >
-                <span 
+                <ArrowLeft className="w-4 h-4" style={{ color: theme.primaryColor }} />
+                <span
                   className="text-base font-medium"
                   style={{ color: theme.primaryColor }}
                 >
                   {currentIndex + 1}
                 </span>
-                <ArrowRight className="w-4 h-4" style={{ color: theme.primaryColor }} />
               </motion.div>
 
               {/* Question */}
-              <motion.h2 
+              <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15 }}
                 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3"
                 style={{ color: theme.textColor }}
               >
-                {currentQuestion.title || 'Untitled question'}
+                {currentQuestion.title || 'سؤال بدون عنوان'}
                 {currentQuestion.required && (
-                  <span style={{ color: theme.primaryColor }} className="ml-1">*</span>
+                  <span style={{ color: theme.primaryColor }} className="mr-1">*</span>
                 )}
               </motion.h2>
 
               {currentQuestion.description && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
@@ -425,37 +428,37 @@ export function FormPlayer({ form }: FormPlayerProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="mt-8 flex items-center gap-4"
+                className="mt-8 flex items-center gap-4 justify-start"
               >
                 <Button
                   onClick={() => goToNext()}
                   disabled={isSubmitting}
                   className="h-12 px-6 text-base font-medium"
-                  style={{ 
+                  style={{
                     backgroundColor: theme.primaryColor,
                     color: theme.backgroundColor,
                   }}
                 >
                   {isSubmitting ? (
-                    'Submitting...'
+                    'جاري الإرسال...'
                   ) : isLastQuestion ? (
                     <>
-                      Submit
-                      <Check className="w-4 h-4 ml-2" />
+                      إرسال
+                      <Check className="w-4 h-4 mr-2" />
                     </>
                   ) : (
                     <>
-                      OK
-                      <Check className="w-4 h-4 ml-2" />
+                      موافق
+                      <Check className="w-4 h-4 mr-2" />
                     </>
                   )}
                 </Button>
 
-                <span 
+                <span
                   className="text-sm opacity-50"
                   style={{ color: theme.textColor }}
                 >
-                  press <kbd className="font-mono font-medium">Enter ↵</kbd>
+                  اضغط على <kbd className="font-mono font-medium" dir="ltr">Enter ↵</kbd>
                 </span>
               </motion.div>
             </motion.div>
@@ -464,7 +467,7 @@ export function FormPlayer({ form }: FormPlayerProps) {
       </main>
 
       {/* Navigation footer */}
-      <footer className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-between">
+      <footer className="fixed bottom-0 left-0 right-0 p-4 flex items-center justify-between" dir="rtl">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -489,14 +492,14 @@ export function FormPlayer({ form }: FormPlayerProps) {
         </div>
 
         {/* OpenForm branding */}
-        <a 
+        <a
           href="/"
           target="_blank"
           rel="noopener noreferrer"
           className="text-sm opacity-50 hover:opacity-70 transition-opacity"
           style={{ color: theme.textColor }}
         >
-          Powered by <span className="font-semibold">OpenForm</span>
+          بدعم من <span className="font-semibold">أوبن فورم</span>
         </a>
       </footer>
     </div>

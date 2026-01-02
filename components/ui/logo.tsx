@@ -25,8 +25,8 @@ export function Logo({ href = '/', size = 'md', className }: LogoProps) {
         className
       )}
     >
-      Open
-      <span className="font-extrabold text-slate-900">Form</span>
+      أوبن
+      <span className="font-extrabold text-slate-900">فورم</span>
     </span>
   )
 

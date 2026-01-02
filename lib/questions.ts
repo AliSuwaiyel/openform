@@ -1,17 +1,17 @@
 import { QuestionType, QuestionConfig } from './database.types'
-import { 
-  Type, 
-  AlignLeft, 
-  List, 
-  CheckSquare, 
-  Mail, 
-  Phone, 
-  Hash, 
-  Calendar, 
-  Star, 
-  Gauge, 
-  ThumbsUp, 
-  Upload, 
+import {
+  Type,
+  AlignLeft,
+  List,
+  CheckSquare,
+  Mail,
+  Phone,
+  Hash,
+  Calendar,
+  Star,
+  Gauge,
+  ThumbsUp,
+  Upload,
   Link,
   LucideIcon
 } from 'lucide-react'
@@ -27,44 +27,44 @@ export interface QuestionTypeInfo {
 export const questionTypes: QuestionTypeInfo[] = [
   {
     type: 'short_text',
-    label: 'Short Text',
-    description: 'A single line text input',
+    label: 'نص قصير',
+    description: 'مدخل نصي من سطر واحد',
     icon: Type,
     defaultConfig: {
-      placeholder: 'Type your answer here...',
+      placeholder: 'اكتب إجابتك هنا...',
     },
   },
   {
     type: 'long_text',
-    label: 'Long Text',
-    description: 'A multi-line text area',
+    label: 'نص طويل',
+    description: 'مساحة نصية متعددة الأسطر',
     icon: AlignLeft,
     defaultConfig: {
-      placeholder: 'Type your answer here...',
+      placeholder: 'اكتب إجابتك هنا...',
     },
   },
   {
     type: 'dropdown',
-    label: 'Dropdown',
-    description: 'Select one option from a list',
+    label: 'قائمة منسدلة',
+    description: 'اختر خياراً واحداً من القائمة',
     icon: List,
     defaultConfig: {
-      options: ['Option 1', 'Option 2', 'Option 3'],
+      options: ['خيار 1', 'خيار 2', 'خيار 3'],
     },
   },
   {
     type: 'checkboxes',
-    label: 'Checkboxes',
-    description: 'Select multiple options from a list',
+    label: 'مربعات اختيار',
+    description: 'اختر خيارات متعددة من القائمة',
     icon: CheckSquare,
     defaultConfig: {
-      options: ['Option 1', 'Option 2', 'Option 3'],
+      options: ['خيار 1', 'خيار 2', 'خيار 3'],
     },
   },
   {
     type: 'email',
-    label: 'Email',
-    description: 'An email address input',
+    label: 'البريد الإلكتروني',
+    description: 'مدخل لعنوان البريد الإلكتروني',
     icon: Mail,
     defaultConfig: {
       placeholder: 'name@example.com',
@@ -72,8 +72,8 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'phone',
-    label: 'Phone',
-    description: 'A phone number input',
+    label: 'الهاتف',
+    description: 'مدخل لرقم الهاتف',
     icon: Phone,
     defaultConfig: {
       placeholder: '+1 (555) 000-0000',
@@ -81,8 +81,8 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'number',
-    label: 'Number',
-    description: 'A numeric input',
+    label: 'رقم',
+    description: 'مدخل رقمي',
     icon: Hash,
     defaultConfig: {
       placeholder: '0',
@@ -90,15 +90,15 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'date',
-    label: 'Date',
-    description: 'A date picker',
+    label: 'التاريخ',
+    description: 'اختيار التاريخ',
     icon: Calendar,
     defaultConfig: {},
   },
   {
     type: 'rating',
-    label: 'Rating',
-    description: 'A star rating (1-5)',
+    label: 'التقييم',
+    description: 'تقييم بالنجوم (1-5)',
     icon: Star,
     defaultConfig: {
       minValue: 1,
@@ -107,8 +107,8 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'opinion_scale',
-    label: 'Opinion Scale',
-    description: 'A numeric scale (1-10)',
+    label: 'مقياس الرأي',
+    description: 'مقياس رقمي (1-10)',
     icon: Gauge,
     defaultConfig: {
       minValue: 1,
@@ -117,15 +117,15 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'yes_no',
-    label: 'Yes / No',
-    description: 'A simple yes or no choice',
+    label: 'نعم / لا',
+    description: 'خيار بسيط بنعم أو لا',
     icon: ThumbsUp,
     defaultConfig: {},
   },
   {
     type: 'file_upload',
-    label: 'File Upload',
-    description: 'Upload images or PDFs',
+    label: 'رفع ملف',
+    description: 'رفع صور أو ملفات PDF',
     icon: Upload,
     defaultConfig: {
       allowedFileTypes: ['image/*', 'application/pdf'],
@@ -134,8 +134,8 @@ export const questionTypes: QuestionTypeInfo[] = [
   },
   {
     type: 'url',
-    label: 'Website URL',
-    description: 'A URL input',
+    label: 'رابط الموقع',
+    description: 'مدخل رابط',
     icon: Link,
     defaultConfig: {
       placeholder: 'https://example.com',
@@ -150,7 +150,7 @@ export function getQuestionTypeInfo(type: QuestionType): QuestionTypeInfo | unde
 export function createDefaultQuestion(type: QuestionType): QuestionConfig {
   const typeInfo = getQuestionTypeInfo(type)
   const id = crypto.randomUUID()
-  
+
   return {
     id,
     type,

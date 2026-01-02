@@ -56,14 +56,14 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
             setIsUploading(false)
           }
           reader.onerror = () => {
-            setUploadError('Failed to read file')
+            setUploadError('فشل قراءة الملف')
             setIsUploading(false)
           }
           reader.readAsDataURL(file)
           return
         }
-        
-        throw new Error(result.error || 'Upload failed')
+
+        throw new Error(result.error || 'فشل الرفع')
       }
 
       // Success - store the R2 URL
@@ -74,14 +74,14 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
         url: result.url,
       })
     } catch (error) {
-      setUploadError(error instanceof Error ? error.message : 'Upload failed')
+      setUploadError(error instanceof Error ? error.message : 'فشل الرفع')
     } finally {
       setIsUploading(false)
     }
   }, [onChange])
 
   return (
-    <div>
+    <div dir="rtl">
       <input
         ref={fileInputRef}
         type="file"
@@ -96,14 +96,14 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
           e.target.value = ''
         }}
       />
-      
+
       {value ? (
-        <div 
+        <div
           className="p-4 rounded-xl border-2 flex items-center gap-4"
           style={{ borderColor: theme.primaryColor }}
         >
-          <div 
-            className="w-12 h-12 rounded-lg flex items-center justify-center"
+          <div
+            className="w-12 h-12 rounded-lg flex items-center justify-center shrink-0"
             style={{ backgroundColor: `${theme.primaryColor}20` }}
           >
             {value.type?.startsWith('image/') ? (
@@ -112,13 +112,13 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
               <FileText className="w-6 h-6" style={{ color: theme.primaryColor }} />
             )}
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 text-right">
             <p className="font-medium truncate" style={{ color: theme.textColor }}>
               {value.name}
             </p>
             {value.size && (
               <p className="text-sm opacity-50" style={{ color: theme.textColor }}>
-                {(value.size / 1024).toFixed(1)} KB
+                {(value.size / 1024).toFixed(1)} ك.ب
               </p>
             )}
           </div>
@@ -131,15 +131,15 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
           </button>
         </div>
       ) : isUploading ? (
-        <div 
+        <div
           className="w-full p-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-3"
-          style={{ 
+          style={{
             borderColor: theme.primaryColor,
             color: theme.textColor,
           }}
         >
           <Loader2 className="w-8 h-8 animate-spin" style={{ color: theme.primaryColor }} />
-          <p className="font-medium">Uploading...</p>
+          <p className="font-medium">جاري الرفع...</p>
         </div>
       ) : (
         <div>
@@ -149,23 +149,23 @@ function FileUploadQuestion({ question, value, onChange, theme }: FileUploadQues
             whileTap={{ scale: 0.99 }}
             onClick={() => fileInputRef.current?.click()}
             className="w-full p-8 rounded-xl border-2 border-dashed flex flex-col items-center gap-3 transition-colors"
-            style={{ 
+            style={{
               borderColor: uploadError ? '#EF4444' : `${theme.textColor}30`,
               color: theme.textColor,
             }}
           >
             <Upload className="w-8 h-8 opacity-50" />
             <div className="text-center">
-              <p className="font-medium">Click to upload</p>
+              <p className="font-medium">اضغط للرفع</p>
               <p className="text-sm opacity-50 mt-1">
-                Images & PDFs up to {question.maxFileSize || 10}MB
+                الصور والملفات حتى {question.maxFileSize || 10} ميجابايت
               </p>
             </div>
           </motion.button>
           {uploadError && (
-            <div className="mt-3 flex items-center gap-2 text-sm" style={{ color: '#EF4444' }}>
-              <AlertCircle className="w-4 h-4" />
+            <div className="mt-3 flex items-center gap-2 text-sm justify-end" style={{ color: '#EF4444' }}>
               <span>{uploadError}</span>
+              <AlertCircle className="w-4 h-4" />
             </div>
           )}
         </div>
@@ -184,10 +184,10 @@ interface QuestionRendererProps {
   onClearError?: () => void
 }
 
-export function QuestionRenderer({ 
-  question, 
-  value, 
-  onChange, 
+export function QuestionRenderer({
+  question,
+  value,
+  onChange,
   theme,
   error,
   onSubmit,
@@ -199,6 +199,12 @@ export function QuestionRenderer({
     borderColor: error ? '#EF4444' : isFocused ? theme.primaryColor : `${theme.textColor}30`,
     color: theme.textColor,
     backgroundColor: 'transparent',
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey && question.type !== 'long_text') {
+      onSubmit()
+    }
   }
 
   switch (question.type) {
@@ -214,10 +220,12 @@ export function QuestionRenderer({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder={question.placeholder || 'Type your answer here...'}
-          className="text-xl md:text-2xl h-auto py-3 px-0 border-0 border-b-2 rounded-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-40"
+          onKeyPress={handleKeyPress}
+          placeholder={question.placeholder || 'اكتب إجابتك هنا...'}
+          className="text-xl md:text-2xl h-auto py-3 px-0 border-0 border-b-2 rounded-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-40 text-right"
           style={inputStyles}
           autoFocus
+          dir="rtl"
         />
       )
 
@@ -228,10 +236,11 @@ export function QuestionRenderer({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          placeholder={question.placeholder || 'Type your answer here...'}
-          className="text-lg md:text-xl min-h-[150px] p-4 border-2 rounded-xl bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-40 resize-none"
+          placeholder={question.placeholder || 'اكتب إجابتك هنا...'}
+          className="text-lg md:text-xl min-h-[150px] p-4 border-2 rounded-xl bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:opacity-40 resize-none text-right"
           style={inputStyles}
           autoFocus
+          dir="rtl"
         />
       )
 
@@ -243,15 +252,17 @@ export function QuestionRenderer({
           onChange={(e) => onChange(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className="text-xl md:text-2xl h-auto py-3 px-0 border-0 border-b-2 rounded-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+          onKeyPress={handleKeyPress}
+          className="text-xl md:text-2xl h-auto py-3 px-0 border-0 border-b-2 rounded-none bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-right"
           style={inputStyles}
           autoFocus
+          dir="rtl"
         />
       )
 
     case 'dropdown':
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" dir="rtl">
           {(question.options || []).map((option, index) => {
             const isSelected = value === option
             return (
@@ -267,16 +278,16 @@ export function QuestionRenderer({
                   onClearError?.()
                   onSubmit(true)
                 }}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all"
+                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 text-right transition-all"
                 style={{
                   borderColor: isSelected ? theme.primaryColor : `${theme.textColor}20`,
                   backgroundColor: isSelected ? `${theme.primaryColor}10` : 'transparent',
                   color: theme.textColor,
                 }}
               >
-                <div 
+                <div
                   className="w-8 h-8 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors"
-                  style={{ 
+                  style={{
                     borderColor: isSelected ? theme.primaryColor : `${theme.textColor}40`,
                     backgroundColor: isSelected ? theme.primaryColor : 'transparent',
                   }}
@@ -299,7 +310,7 @@ export function QuestionRenderer({
     case 'checkboxes':
       const selectedValues = Array.isArray(value) ? value : []
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" dir="rtl">
           {(question.options || []).map((option, index) => {
             const isSelected = selectedValues.includes(option)
             return (
@@ -313,16 +324,16 @@ export function QuestionRenderer({
                     : [...selectedValues, option]
                   onChange(newValues)
                 }}
-                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all"
+                className="w-full flex items-center gap-4 p-4 rounded-xl border-2 text-right transition-all"
                 style={{
                   borderColor: isSelected ? theme.primaryColor : `${theme.textColor}20`,
                   backgroundColor: isSelected ? `${theme.primaryColor}10` : 'transparent',
                   color: theme.textColor,
                 }}
               >
-                <div 
+                <div
                   className="w-8 h-8 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors"
-                  style={{ 
+                  style={{
                     borderColor: isSelected ? theme.primaryColor : `${theme.textColor}40`,
                     backgroundColor: isSelected ? theme.primaryColor : 'transparent',
                   }}
@@ -339,27 +350,30 @@ export function QuestionRenderer({
               </motion.button>
             )
           })}
-          <p className="text-sm opacity-50 mt-2" style={{ color: theme.textColor }}>
-            Select all that apply
+          <p className="text-sm opacity-50 mt-2 text-right" style={{ color: theme.textColor }}>
+            اختر كل ما ينطبق
           </p>
         </div>
       )
 
     case 'yes_no':
       return (
-        <div className="flex gap-4">
-          {['Yes', 'No'].map((option) => {
-            const isSelected = value === option
+        <div className="flex gap-4" dir="rtl">
+          {[
+            { label: 'نعم', value: 'Yes' },
+            { label: 'لا', value: 'No' }
+          ].map((option) => {
+            const isSelected = value === option.value
             return (
               <motion.button
-                key={option}
+                key={option.value}
                 type="button"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  onChange(option)
+                  onChange(option.value)
                   onClearError?.()
                   onSubmit(true)
                 }}
@@ -370,9 +384,9 @@ export function QuestionRenderer({
                   color: theme.textColor,
                 }}
               >
-                <div 
+                <div
                   className="w-8 h-8 rounded-lg border-2 flex items-center justify-center shrink-0 transition-colors"
-                  style={{ 
+                  style={{
                     borderColor: isSelected ? theme.primaryColor : `${theme.textColor}40`,
                     backgroundColor: isSelected ? theme.primaryColor : 'transparent',
                   }}
@@ -381,11 +395,11 @@ export function QuestionRenderer({
                     <Check className="w-4 h-4" style={{ color: theme.backgroundColor }} />
                   ) : (
                     <span className="text-sm font-medium" style={{ color: theme.textColor }}>
-                      {option[0]}
+                      {option.label[0]}
                     </span>
                   )}
                 </div>
-                <span className="text-xl font-medium">{option}</span>
+                <span className="text-xl font-medium">{option.label}</span>
               </motion.button>
             )
           })}
@@ -396,7 +410,7 @@ export function QuestionRenderer({
       const maxRating = question.maxValue || 5
       const currentRating = typeof value === 'number' ? value : 0
       return (
-        <div className="flex gap-2">
+        <div className="flex gap-2 justify-end" dir="rtl">
           {Array.from({ length: maxRating }).map((_, index) => {
             const starValue = index + 1
             const isActive = starValue <= currentRating
@@ -411,7 +425,7 @@ export function QuestionRenderer({
                 <Star
                   className="w-10 h-10 md:w-12 md:h-12 transition-colors"
                   fill={isActive ? theme.primaryColor : 'transparent'}
-                  style={{ 
+                  style={{
                     color: isActive ? theme.primaryColor : `${theme.textColor}30`,
                   }}
                 />
@@ -426,7 +440,7 @@ export function QuestionRenderer({
       const maxScale = question.maxValue || 10
       const scaleValue = typeof value === 'number' ? value : null
       return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-end" dir="rtl">
           {Array.from({ length: maxScale - minScale + 1 }).map((_, index) => {
             const num = minScale + index
             const isSelected = scaleValue === num
@@ -462,15 +476,15 @@ export function QuestionRenderer({
         <FileUploadQuestion
           question={question}
           value={value as FileUploadValue | null}
-          onChange={onChange}
+          onChange={onChange as any}
           theme={theme}
         />
       )
 
     default:
       return (
-        <p style={{ color: theme.textColor }} className="opacity-50">
-          Unsupported question type: {question.type}
+        <p style={{ color: theme.textColor }} className="opacity-50 text-right" dir="rtl">
+          نوع السؤال غير مدعوم: {question.type}
         </p>
       )
   }

@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Form, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
-import { questionTypes, createDefaultQuestion } from '@/lib/questions'
+import { questionTypes, createDefaultQuestion, getQuestionTypeInfo } from '@/lib/questions'
 import { themes, themeList } from '@/lib/themes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,7 +25,7 @@ import {
 import { toast } from 'sonner'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import {
-  ArrowLeft,
+  ArrowRight,
   Plus,
   Trash2,
   GripVertical,
@@ -51,7 +51,7 @@ interface FormBuilderProps {
 export function FormBuilder({ form: initialForm }: FormBuilderProps) {
   const router = useRouter()
   const supabase = createClient()
-  
+
   const [form, setForm] = useState(initialForm)
   const [questions, setQuestions] = useState<QuestionConfig[]>(
     (initialForm.questions as QuestionConfig[]) || []
@@ -81,9 +81,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       .eq('id', form.id)
 
     if (error) {
-      toast.error('Failed to save form')
+      toast.error('فشل حفظ النموذج')
     } else {
-      toast.success('Form saved')
+      toast.success('تم حفظ النموذج')
       setHasUnsavedChanges(false)
     }
     setIsSaving(false)
@@ -91,13 +91,13 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
 
   const handlePublish = async () => {
     if (questions.length === 0) {
-      toast.error('Add at least one question before publishing')
+      toast.error('أضف سؤالاً واحداً على الأقل قبل النشر')
       return
     }
 
     setIsSaving(true)
     const newStatus: FormStatus = form.status === 'published' ? 'closed' : 'published'
-    
+
     const updateData = {
       status: newStatus,
       questions: questions,
@@ -113,10 +113,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       .eq('id', form.id)
 
     if (error) {
-      toast.error('Failed to update form status')
+      toast.error('فشل تحديث حالة النموذج')
     } else {
       setForm({ ...form, status: newStatus })
-      toast.success(newStatus === 'published' ? 'Form published!' : 'Form unpublished')
+      toast.success(newStatus === 'published' ? 'تم نشر النموذج!' : 'تم إلغاء نشر النموذج')
       setShowPublishDialog(false)
       setHasUnsavedChanges(false)
     }
@@ -132,7 +132,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
   }
 
   const updateQuestion = (id: string, updates: Partial<QuestionConfig>) => {
-    setQuestions(questions.map(q => 
+    setQuestions(questions.map(q =>
       q.id === id ? { ...q, ...updates } : q
     ))
     setHasUnsavedChanges(true)
@@ -154,20 +154,20 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
   const copyFormLink = () => {
     const link = `${window.location.origin}/f/${form.slug}`
     navigator.clipboard.writeText(link)
-    toast.success('Link copied to clipboard')
+    toast.success('تم نسخ الرابط')
   }
 
   const currentTheme = themes[form.theme as ThemePreset] || themes.minimal
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50">
+    <div className="h-screen flex flex-col bg-slate-50" dir="rtl">
       {/* Header */}
       <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowRight className="w-4 h-4 ml-2" />
+              رجوع
             </Button>
           </Link>
           <Separator orientation="vertical" className="h-6" />
@@ -178,22 +178,22 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 setForm({ ...form, title: e.target.value })
                 setHasUnsavedChanges(true)
               }}
-              className="text-lg font-semibold border-0 border-b-2 border-transparent bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-blue-500 hover:border-slate-300 px-1 pr-7 max-w-xs transition-colors"
-              placeholder="Untitled Form"
+              className="text-lg font-semibold border-0 border-b-2 border-transparent bg-transparent rounded-none focus-visible:ring-0 focus-visible:border-blue-500 hover:border-slate-300 px-1 pl-7 max-w-xs transition-colors text-right"
+              placeholder="نموذج بدون عنوان"
             />
-            <Pencil className="w-3.5 h-3.5 text-slate-400 absolute right-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity pointer-events-none" />
+            <Pencil className="w-3.5 h-3.5 text-slate-400 absolute left-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-0 transition-opacity pointer-events-none" />
           </div>
           {form.status === 'published' && (
-            <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
+            <Badge className="bg-emerald-100 text-emerald-700">منشور</Badge>
           )}
           {form.status === 'draft' && (
-            <Badge variant="secondary">Draft</Badge>
+            <Badge variant="secondary">مسودة</Badge>
           )}
           {form.status === 'closed' && (
-            <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
+            <Badge variant="secondary" className="bg-amber-100 text-amber-700">مغلق</Badge>
           )}
           {hasUnsavedChanges && (
-            <span className="text-sm text-slate-500">Unsaved changes</span>
+            <span className="text-sm text-slate-500">تغييرات غير محفوظة</span>
           )}
         </div>
 
@@ -201,36 +201,36 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           {form.status === 'published' && (
             <>
               <Button variant="outline" size="sm" onClick={copyFormLink}>
-                <Copy className="w-4 h-4 mr-2" />
-                Copy link
+                <Copy className="w-4 h-4 ml-2" />
+                نسخ الرابط
               </Button>
               <Link href={`/f/${form.slug}`} target="_blank">
                 <Button variant="outline" size="sm">
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                  عرض
                 </Button>
               </Link>
             </>
           )}
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleSave}
             disabled={isSaving}
           >
-            <Save className="w-4 h-4 mr-2" />
-            Save
+            <Save className="w-4 h-4 ml-2" />
+            حفظ
           </Button>
           <Button
             size="sm"
             onClick={() => setShowPublishDialog(true)}
-            className={form.status === 'published' 
-              ? 'bg-amber-500 hover:bg-amber-600' 
+            className={form.status === 'published'
+              ? 'bg-amber-500 hover:bg-amber-600'
               : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
             }
           >
-            <Globe className="w-4 h-4 mr-2" />
-            {form.status === 'published' ? 'Unpublish' : 'Publish'}
+            <Globe className="w-4 h-4 ml-2" />
+            {form.status === 'published' ? 'إلغاء النشر' : 'نشر'}
           </Button>
         </div>
       </header>
@@ -238,43 +238,43 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       {/* Main content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-hidden">
+        <aside className="w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col overflow-hidden">
             <div className="shrink-0 p-2 border-b border-slate-100">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="questions" className="text-xs">
-                  <FileText className="w-3 h-3 mr-1" />
-                  Questions
+                  <FileText className="w-3 h-3 ml-1" />
+                  الأسئلة
                 </TabsTrigger>
                 <TabsTrigger value="design" className="text-xs">
-                  <Palette className="w-3 h-3 mr-1" />
-                  Design
+                  <Palette className="w-3 h-3 ml-1" />
+                  التصميم
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="text-xs">
-                  <Settings className="w-3 h-3 mr-1" />
-                  Settings
+                  <Settings className="w-3 h-3 ml-1" />
+                  الإعدادات
                 </TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="questions" className="flex-1 flex flex-col mt-0 overflow-hidden data-[state=inactive]:hidden">
               <div className="shrink-0 p-4 border-b border-slate-100">
-                <Button 
+                <Button
                   onClick={() => setShowAddQuestion(true)}
                   className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Question
+                  <Plus className="w-4 h-4 ml-2" />
+                  أضف سؤالاً
                 </Button>
               </div>
-              
+
               <ScrollArea className="flex-1">
                 <div className="p-2">
                   {questions.length === 0 ? (
                     <div className="text-center py-8 px-4">
                       <FileText className="w-12 h-12 mx-auto text-slate-300 mb-3" />
-                      <p className="text-sm text-slate-500">No questions yet</p>
-                      <p className="text-xs text-slate-400 mt-1">Add your first question to get started</p>
+                      <p className="text-sm text-slate-500">لا توجد أسئلة بعد</p>
+                      <p className="text-xs text-slate-400 mt-1">أضف سؤالك الأول للبدء</p>
                     </div>
                   ) : (
                     <Reorder.Group axis="y" values={questions} onReorder={handleReorder}>
@@ -287,9 +287,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                               animate={{ opacity: 1, y: 0 }}
                               exit={{ opacity: 0, scale: 0.95 }}
                               className={`
-                                group p-3 rounded-lg cursor-pointer mb-2 border transition-all
-                                ${selectedQuestionId === question.id 
-                                  ? 'bg-blue-50 border-blue-200' 
+                                group p-3 rounded-lg cursor-pointer mb-2 border transition-all text-right
+                                ${selectedQuestionId === question.id
+                                  ? 'bg-blue-50 border-blue-200'
                                   : 'bg-white border-slate-100 hover:border-slate-200'
                                 }
                               `}
@@ -300,19 +300,19 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                                   <GripVertical className="w-4 h-4 text-slate-300" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <span className="text-xs font-medium text-slate-400">
-                                      {index + 1}
-                                    </span>
-                                    <span className="text-xs text-slate-400 capitalize">
-                                      {question.type.replace('_', ' ')}
-                                    </span>
+                                  <div className="flex items-center gap-2 mb-1 justify-end">
                                     {question.required && (
                                       <span className="text-xs text-red-500">*</span>
                                     )}
+                                    <span className="text-xs text-slate-400 capitalize">
+                                      {getQuestionTypeInfo(question.type)?.label || question.type.replace('_', ' ')}
+                                    </span>
+                                    <span className="text-xs font-medium text-slate-400">
+                                      {index + 1}
+                                    </span>
                                   </div>
                                   <p className="text-sm font-medium text-slate-900 truncate">
-                                    {question.title || 'Untitled question'}
+                                    {question.title || 'سؤال بدون عنوان'}
                                   </p>
                                 </div>
                                 <Button
@@ -338,9 +338,9 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             </TabsContent>
 
             <TabsContent value="design" className="flex-1 mt-0 overflow-auto data-[state=inactive]:hidden">
-              <div className="p-4 space-y-6">
+              <div className="p-4 space-y-6 text-right">
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">Theme</Label>
+                  <Label className="text-sm font-medium mb-3 block">السمة</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {themeList.map((theme) => (
                       <button
@@ -350,19 +350,19 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                           setHasUnsavedChanges(true)
                         }}
                         className={`
-                          p-3 rounded-lg border-2 transition-all text-left
-                          ${form.theme === theme.id 
-                            ? 'border-blue-500 ring-2 ring-blue-200' 
+                          p-3 rounded-lg border-2 transition-all text-right
+                          ${form.theme === theme.id
+                            ? 'border-blue-500 ring-2 ring-blue-200'
                             : 'border-slate-200 hover:border-slate-300'
                           }
                         `}
                       >
-                        <div 
+                        <div
                           className="w-full h-8 rounded mb-2"
                           style={{ backgroundColor: theme.backgroundColor }}
                         >
-                          <div 
-                            className="w-1/2 h-full rounded-l flex items-center justify-center"
+                          <div
+                            className="w-1/2 h-full rounded-r flex items-center justify-center"
                             style={{ backgroundColor: theme.primaryColor }}
                           />
                         </div>
@@ -375,10 +375,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
             </TabsContent>
 
             <TabsContent value="settings" className="flex-1 mt-0 overflow-auto data-[state=inactive]:hidden">
-              <div className="p-4 space-y-6">
+              <div className="p-4 space-y-6 text-right">
                 <div>
-                  <Label htmlFor="slug" className="text-sm font-medium">Form URL</Label>
-                  <div className="mt-2 flex items-center gap-2">
+                  <Label htmlFor="slug" className="text-sm font-medium">رابط النموذج</Label>
+                  <div className="mt-2 flex items-center gap-2" dir="ltr">
                     <span className="text-sm text-slate-500">/f/</span>
                     <Input
                       id="slug"
@@ -395,7 +395,7 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                 </div>
 
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+                  <Label htmlFor="description" className="text-sm font-medium">الوصف</Label>
                   <Textarea
                     id="description"
                     value={form.description || ''}
@@ -403,14 +403,15 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                       setForm({ ...form, description: e.target.value })
                       setHasUnsavedChanges(true)
                     }}
-                    className="mt-2"
-                    placeholder="Optional form description..."
+                    className="mt-2 text-right"
+                    placeholder="وصف اختياري للنموذج..."
                     rows={3}
+                    dir="rtl"
                   />
                 </div>
 
                 <div>
-                  <Label htmlFor="thank_you" className="text-sm font-medium">Thank You Message</Label>
+                  <Label htmlFor="thank_you" className="text-sm font-medium">رسالة الشكر</Label>
                   <Textarea
                     id="thank_you"
                     value={form.thank_you_message}
@@ -418,9 +419,10 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
                       setForm({ ...form, thank_you_message: e.target.value })
                       setHasUnsavedChanges(true)
                     }}
-                    className="mt-2"
-                    placeholder="Thank you for your response!"
+                    className="mt-2 text-right"
+                    placeholder="شكراً لك على ردك!"
                     rows={3}
+                    dir="rtl"
                   />
                 </div>
               </div>
@@ -432,11 +434,11 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
         <div className="flex-1 flex overflow-hidden">
           {/* Question Editor */}
           {selectedQuestion && (
-            <div className="w-96 bg-white border-r border-slate-200 overflow-auto">
-              <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                <h3 className="font-medium">Edit Question</h3>
-                <Button 
-                  variant="ghost" 
+            <div className="w-96 bg-white border-l border-slate-200 overflow-auto">
+              <div className="p-4 border-b border-slate-100 flex items-center justify-between" dir="rtl">
+                <h3 className="font-medium">تعديل السؤال</h3>
+                <Button
+                  variant="ghost"
                   size="sm"
                   onClick={() => setSelectedQuestionId(null)}
                 >
@@ -455,18 +457,18 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
           <div className="flex-1 overflow-auto bg-slate-100 p-8">
             <div className="max-w-2xl mx-auto">
               <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden mb-4">
-                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-200">
+                <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-200" dir="rtl">
                   <Eye className="w-4 h-4 text-slate-500" />
-                  <span className="text-sm font-medium text-slate-600">Preview</span>
+                  <span className="text-sm font-medium text-slate-600">معاينة</span>
                 </div>
-                <div 
+                <div
                   className="min-h-[500px]"
-                  style={{ 
+                  style={{
                     backgroundColor: currentTheme.backgroundColor,
-                    fontFamily: currentTheme.fontFamily 
+                    fontFamily: currentTheme.fontFamily
                   }}
                 >
-                  <FormPreview 
+                  <FormPreview
                     questions={questions}
                     theme={currentTheme}
                     selectedQuestionId={selectedQuestionId}
@@ -482,18 +484,18 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
       {/* Add Question Dialog */}
       <Dialog open={showAddQuestion} onOpenChange={setShowAddQuestion}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Add Question</DialogTitle>
+          <DialogHeader className="text-right">
+            <DialogTitle>أضف سؤالاً</DialogTitle>
             <DialogDescription>
-              Choose a question type to add to your form
+              اختر نوع السؤال لإضافته إلى نموذجك
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-3 gap-3 py-4">
+          <div className="grid grid-cols-3 gap-3 py-4" dir="rtl">
             {questionTypes.map((qt) => (
               <button
                 key={qt.type}
                 onClick={() => addQuestion(qt.type)}
-                className="p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-left group"
+                className="p-4 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-right group"
               >
                 <qt.icon className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2" />
                 <p className="font-medium text-sm text-slate-900">{qt.label}</p>
@@ -506,38 +508,38 @@ export function FormBuilder({ form: initialForm }: FormBuilderProps) {
 
       {/* Publish Dialog */}
       <Dialog open={showPublishDialog} onOpenChange={setShowPublishDialog}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent dir="rtl">
+          <DialogHeader className="text-right">
             <DialogTitle>
-              {form.status === 'published' ? 'Unpublish form?' : 'Publish form?'}
+              {form.status === 'published' ? 'إلغاء نشر النموذج؟' : 'نشر النموذج؟'}
             </DialogTitle>
             <DialogDescription>
-              {form.status === 'published' 
-                ? 'This will make your form inaccessible to respondents. Existing responses will be kept.'
-                : 'Your form will be accessible at:'
+              {form.status === 'published'
+                ? 'سيؤدي هذا إلى جعل نموذجك غير متاح للمستجيبين. سيتم الاحتفاظ بالردود الموجودة.'
+                : 'سيكون نموذجك متاحاً على الرابط التالي:'
               }
             </DialogDescription>
           </DialogHeader>
           {form.status !== 'published' && (
-            <div className="p-3 bg-slate-50 rounded-lg">
+            <div className="p-3 bg-slate-50 rounded-lg text-left" dir="ltr">
               <code className="text-sm text-blue-600">
                 {typeof window !== 'undefined' ? window.location.origin : ''}/f/{form.slug}
               </code>
             </div>
           )}
-          <DialogFooter>
+          <DialogFooter className="flex-row-reverse gap-2">
             <Button variant="outline" onClick={() => setShowPublishDialog(false)}>
-              Cancel
+              إلغاء
             </Button>
-            <Button 
+            <Button
               onClick={handlePublish}
               disabled={isSaving}
-              className={form.status === 'published' 
-                ? 'bg-amber-500 hover:bg-amber-600' 
+              className={form.status === 'published'
+                ? 'bg-amber-500 hover:bg-amber-600'
                 : 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20'
               }
             >
-              {isSaving ? 'Saving...' : form.status === 'published' ? 'Unpublish' : 'Publish'}
+              {isSaving ? 'جاري الحفظ...' : form.status === 'published' ? 'إلغاء النشر' : 'نشر'}
             </Button>
           </DialogFooter>
         </DialogContent>

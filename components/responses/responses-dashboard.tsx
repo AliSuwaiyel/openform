@@ -34,7 +34,7 @@ import { Card } from '@/components/ui/card'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { toast } from 'sonner'
 import {
-  ArrowLeft,
+  ArrowRight,
   Search,
   Download,
   Trash2,
@@ -54,7 +54,7 @@ interface ResponsesDashboardProps {
 }
 
 function formatDate(date: string) {
-  return new Date(date).toLocaleString('en-US', {
+  return new Date(date).toLocaleString('ar-SA', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -80,8 +80,8 @@ function isFileUpload(answer: Json): boolean {
   return (
     'name' in obj &&
     typeof obj.name === 'string' &&
-    (('url' in obj && typeof obj.url === 'string') || 
-     ('data' in obj && typeof obj.data === 'string'))
+    (('url' in obj && typeof obj.url === 'string') ||
+      ('data' in obj && typeof obj.data === 'string'))
   )
 }
 
@@ -96,7 +96,7 @@ function getFileUrl(file: FileUpload): string {
 
 function formatAnswer(answer: Json): string {
   if (answer === null || answer === undefined) return '-'
-  if (typeof answer === 'boolean') return answer ? 'Yes' : 'No'
+  if (typeof answer === 'boolean') return answer ? 'نعم' : 'لا'
   if (Array.isArray(answer)) return answer.join(', ')
   if (typeof answer === 'object') {
     // Handle file uploads
@@ -109,9 +109,9 @@ function formatAnswer(answer: Json): string {
 }
 
 function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  if (bytes < 1024) return bytes + ' ب'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' ك.ب'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' م.ب'
 }
 
 export function ResponsesDashboard({ form, responses: initialResponses }: ResponsesDashboardProps) {
@@ -133,7 +133,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
     const query = searchQuery.toLowerCase()
     return responses.filter(response => {
       const answers = response.answers as Record<string, Json>
-      return Object.values(answers).some(answer => 
+      return Object.values(answers).some(answer =>
         formatAnswer(answer).toLowerCase().includes(query)
       )
     })
@@ -141,7 +141,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
   const handleDelete = async () => {
     if (!responseToDelete) return
-    
+
     setIsDeleting(true)
     const { error } = await supabase
       .from('responses')
@@ -149,10 +149,10 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
       .eq('id', responseToDelete)
 
     if (error) {
-      toast.error('Failed to delete response')
+      toast.error('فشل في حذف الرد')
     } else {
       setResponses(prev => prev.filter(r => r.id !== responseToDelete))
-      toast.success('Response deleted')
+      toast.success('تم حذف الرد')
     }
     setIsDeleting(false)
     setDeleteDialogOpen(false)
@@ -161,13 +161,13 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
   const exportToCSV = () => {
     if (responses.length === 0) {
-      toast.error('No responses to export')
+      toast.error('لا يوجد ردود لتصديرها')
       return
     }
 
     // Build CSV header
-    const headers = ['Submitted At', ...questions.map(q => q.title || 'Untitled')]
-    
+    const headers = ['تاريخ التقديم', ...questions.map(q => q.title || 'بدون عنوان')]
+
     // Build CSV rows
     const rows = responses.map(response => {
       const answers = response.answers as Record<string, Json>
@@ -177,40 +177,40 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
       ]
     })
 
-    // Create CSV content
+    // Create CSV content (UTF-8 with BOM for Excel Arabic support)
     const csvContent = [
       headers.map(h => `"${h.replace(/"/g, '""')}"`).join(','),
-      ...rows.map(row => 
+      ...rows.map(row =>
         row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
       )
     ].join('\n')
 
     // Download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.download = `${form.title || 'form'}-responses-${new Date().toISOString().split('T')[0]}.csv`
     link.click()
     URL.revokeObjectURL(link.href)
-    
-    toast.success('CSV exported successfully')
+
+    toast.success('تم تصدير ملف CSV بنجاح')
   }
 
   const copyFormLink = () => {
     const link = `${window.location.origin}/f/${form.slug}`
     navigator.clipboard.writeText(link)
-    toast.success('Link copied to clipboard')
+    toast.success('تم نسخ الرابط إلى الحافظة')
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-12 py-8">
+    <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-12 py-8 text-right" dir="rtl">
       {/* Header */}
       <div className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-4 justify-start">
           <Link href="/dashboard">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              <ArrowRight className="w-4 h-4 ml-2" />
+              العودة
             </Button>
           </Link>
         </div>
@@ -220,37 +220,37 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
             <div className="flex items-center gap-3">
               <h1 className="text-2xl font-bold text-slate-900">{form.title}</h1>
               {form.status === 'published' && (
-                <Badge className="bg-emerald-100 text-emerald-700">Published</Badge>
+                <Badge className="bg-emerald-100 text-emerald-700">منشور</Badge>
               )}
               {form.status === 'draft' && (
-                <Badge variant="secondary">Draft</Badge>
+                <Badge variant="secondary">مسودة</Badge>
               )}
               {form.status === 'closed' && (
-                <Badge variant="secondary" className="bg-amber-100 text-amber-700">Closed</Badge>
+                <Badge variant="secondary" className="bg-amber-100 text-amber-700">مغلق</Badge>
               )}
             </div>
             <p className="text-slate-600 mt-1">
-              {responses.length} {responses.length === 1 ? 'response' : 'responses'}
+              {responses.length} {responses.length === 1 ? 'رد' : 'ردود'}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <Link href={`/forms/${form.id}/edit`}>
               <Button variant="outline" size="sm">
-                <Pencil className="w-4 h-4 mr-2" />
-                Edit Form
+                <Pencil className="w-4 h-4 ml-2" />
+                تعديل النموذج
               </Button>
             </Link>
             {form.status === 'published' && (
               <>
                 <Button variant="outline" size="sm" onClick={copyFormLink}>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Link
+                  <Copy className="w-4 h-4 ml-2" />
+                  نسخ الرابط
                 </Button>
                 <Link href={`/f/${form.slug}`} target="_blank">
                   <Button variant="outline" size="sm">
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    View Form
+                    <ExternalLink className="w-4 h-4 ml-2" />
+                    عرض النموذج
                   </Button>
                 </Link>
               </>
@@ -265,17 +265,17 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-100 flex items-center justify-center">
             <FileText className="w-8 h-8 text-slate-400" />
           </div>
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">No responses yet</h2>
+          <h2 className="text-xl font-semibold text-slate-900 mb-2">لا توجد ردود بعد</h2>
           <p className="text-slate-600 max-w-sm mx-auto">
-            {form.status === 'published' 
-              ? 'Share your form to start collecting responses'
-              : 'Publish your form to start collecting responses'
+            {form.status === 'published'
+              ? 'شارك نموذجك للبدء في جمع الردود'
+              : 'قم بنشر نموذجك للبدء في جمع الردود'
             }
           </p>
           {form.status === 'published' && (
             <Button onClick={copyFormLink} className="mt-6 bg-blue-600 hover:bg-blue-700">
-              <Copy className="w-4 h-4 mr-2" />
-              Copy form link
+              <Copy className="w-4 h-4 ml-2" />
+              نسخ رابط النموذج
             </Button>
           )}
         </Card>
@@ -284,17 +284,17 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
           {/* Toolbar */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search responses..."
+                placeholder="بحث في الردود..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pr-10"
               />
             </div>
             <Button onClick={exportToCSV} variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
+              <Download className="w-4 h-4 ml-2" />
+              تصدير CSV
             </Button>
           </div>
 
@@ -304,15 +304,15 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[180px] sticky left-0 bg-white z-10 pl-6">Submitted</TableHead>
+                    <TableHead className="w-[180px] sticky right-0 bg-white z-10 pr-6 text-right">تاريخ التقديم</TableHead>
                     {questions.map((question, index) => (
-                      <TableHead key={question.id} className="min-w-[200px]">
-                        <span className="text-slate-400 mr-2">{index + 1}.</span>
-                        {question.title || 'Untitled'}
-                        {question.required && <span className="text-red-500 ml-1">*</span>}
+                      <TableHead key={question.id} className="min-w-[200px] text-right">
+                        <span className="text-slate-400 ml-2">{index + 1}.</span>
+                        {question.title || 'بدون عنوان'}
+                        {question.required && <span className="text-red-500 mr-1">*</span>}
                       </TableHead>
                     ))}
-                    <TableHead className="w-[60px] sticky right-0 bg-white z-10"></TableHead>
+                    <TableHead className="w-[60px] sticky left-0 bg-white z-10"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -320,21 +320,21 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                     const answers = response.answers as Record<string, Json>
                     return (
                       <TableRow key={response.id}>
-                        <TableCell className="font-medium sticky left-0 bg-white z-10 pl-6">
+                        <TableCell className="font-medium sticky right-0 bg-white z-10 pr-6 text-right">
                           {formatDate(response.submitted_at)}
                         </TableCell>
                         {questions.map((question) => {
                           const answer = answers[question.id]
-                          
+
                           // Special rendering for file uploads
                           if (isFileUpload(answer)) {
                             const file = asFileUpload(answer)
                             const isImage = file.type?.startsWith('image/')
                             return (
-                              <TableCell key={question.id} className="max-w-[300px]">
+                              <TableCell key={question.id} className="max-w-[300px] text-right">
                                 <button
                                   onClick={() => setFilePreview(file)}
-                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors text-sm group"
+                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors text-sm group flex-row-reverse"
                                 >
                                   {isImage ? (
                                     <ImageIcon className="w-4 h-4" />
@@ -347,30 +347,30 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                               </TableCell>
                             )
                           }
-                          
+
                           return (
-                            <TableCell key={question.id} className="max-w-[300px] truncate">
+                            <TableCell key={question.id} className="max-w-[300px] truncate text-right">
                               {formatAnswer(answer)}
                             </TableCell>
                           )
                         })}
-                        <TableCell className="sticky right-0 bg-white z-10">
+                        <TableCell className="sticky left-0 bg-white z-10">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                            <DropdownMenuContent align="start">
                               <DropdownMenuItem
                                 onClick={() => {
                                   setResponseToDelete(response.id)
                                   setDeleteDialogOpen(true)
                                 }}
-                                className="text-red-600 focus:text-red-600"
+                                className="text-red-600 focus:text-red-600 text-right"
                               >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
+                                <Trash2 className="ml-2 h-4 w-4" />
+                                حذف الرد
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -386,7 +386,7 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
           {filteredResponses.length === 0 && searchQuery && (
             <div className="text-center py-12">
-              <p className="text-slate-500">No responses match your search</p>
+              <p className="text-slate-500">لا توجد ردود تطابق بحثك</p>
             </div>
           )}
         </>
@@ -394,23 +394,23 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
       {/* Delete confirmation dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent dir="rtl">
           <DialogHeader>
-            <DialogTitle>Delete response</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete this response? This action cannot be undone.
+            <DialogTitle className="text-right">حذف الرد</DialogTitle>
+            <DialogDescription className="text-right">
+              هل أنت متأكد من رغبتك في حذف هذا الرد؟ لا يمكن التراجع عن هذا الإجراء.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="flex-row-reverse gap-2 sm:justify-start">
             <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancel
+              إلغاء
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
-              {isDeleting ? 'Deleting...' : 'Delete'}
+              {isDeleting ? 'جاري الحذف...' : 'حذف'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -418,9 +418,9 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
 
       {/* File preview dialog */}
       <Dialog open={!!filePreview} onOpenChange={() => setFilePreview(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 justify-start">
               {filePreview?.type?.startsWith('image/') ? (
                 <ImageIcon className="w-5 h-5 text-blue-600" />
               ) : (
@@ -428,15 +428,15 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
               )}
               <span className="truncate">{filePreview?.name}</span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-right">
               {filePreview?.size ? formatFileSize(filePreview.size) + ' • ' : ''}{filePreview?.type}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-auto min-h-0 mt-4">
             {filePreview?.type?.startsWith('image/') ? (
-              <img 
-                src={getFileUrl(filePreview)} 
+              <img
+                src={getFileUrl(filePreview)}
                 alt={filePreview.name}
                 className="max-w-full h-auto rounded-lg mx-auto"
               />
@@ -449,20 +449,20 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                 <File className="w-16 h-16 mb-4 opacity-50" />
-                <p>Preview not available for this file type</p>
+                <p>المعاينة غير متاحة لهذا النوع من الملفات</p>
               </div>
             )}
           </div>
 
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 flex-row-reverse gap-2 sm:justify-start">
             <Button variant="outline" onClick={() => setFilePreview(null)}>
-              Close
+              إغلاق
             </Button>
             {filePreview?.url ? (
               <a href={filePreview.url} target="_blank" rel="noopener noreferrer" download={filePreview.name}>
                 <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
+                  <Download className="w-4 h-4 ml-2" />
+                  تحميل
                 </Button>
               </a>
             ) : (
@@ -477,8 +477,8 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
                   }
                 }}
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download
+                <Download className="w-4 h-4 ml-2" />
+                تحميل
               </Button>
             )}
           </DialogFooter>

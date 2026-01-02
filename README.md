@@ -1,4 +1,4 @@
-# OpenForm
+# OpenForm بالعربي
 
 A beautiful, open-source TypeForm alternative. Create engaging forms with a one-question-at-a-time experience.
 
@@ -6,6 +6,9 @@ A beautiful, open-source TypeForm alternative. Create engaging forms with a one-
 
 ## Features
 
+- **Arabic localization** - Fully translated interface (Landing, Dashboard, Builder, Player)
+- **RTL support** - Complete right-to-left layout for Arabic users
+- **Rubik font** - Modern typography for both Latin and Arabic scripts
 - **6 beautiful themes** - Midnight, Ocean, Sunset, Forest, Lavender, Minimal
 - **Keyboard navigation** - Navigate with Enter, arrow keys, and scroll wheel
 - **Mobile-first forms** - Responsive form-taking experience
@@ -164,6 +167,3 @@ MIT License - feel free to use this for any project.
 ## Contributing
 
 Contributions are welcome. Please open an issue or pull request.
-# openform
-# openform
-# openform

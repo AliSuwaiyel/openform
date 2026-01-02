@@ -28,7 +28,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) {
-      toast.error('Failed to sign out')
+      toast.error('فشل تسجيل الخروج')
     } else {
       router.push('/')
       router.refresh()
@@ -44,11 +44,11 @@ export function DashboardNav({ user }: DashboardNavProps) {
         <div className="flex items-center gap-8">
           <Logo href="/dashboard" />
           <div className="hidden md:flex items-center gap-6">
-            <Link 
-              href="/dashboard" 
+            <Link
+              href="/dashboard"
               className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
             >
-              My Forms
+              نماذجي
             </Link>
           </div>
         </div>
@@ -56,7 +56,7 @@ export function DashboardNav({ user }: DashboardNavProps) {
         <div className="flex items-center gap-4">
           <Link href="/forms/new">
             <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30 hover:-translate-y-0.5">
-              Create Form
+              إنشاء نموذج
             </Button>
           </Link>
 
@@ -72,8 +72,8 @@ export function DashboardNav({ user }: DashboardNavProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
-              <div className="flex items-center justify-start gap-2 p-2">
-                <div className="flex flex-col space-y-1 leading-none">
+              <div className="flex items-center justify-start gap-2 p-2" dir="rtl">
+                <div className="flex flex-col space-y-1 leading-none text-right">
                   {user.user_metadata?.full_name && (
                     <p className="font-medium">{user.user_metadata.full_name}</p>
                   )}
@@ -83,22 +83,22 @@ export function DashboardNav({ user }: DashboardNavProps) {
                 </div>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard" className="cursor-pointer">
-                  <UserIcon className="mr-2 h-4 w-4" />
-                  My Forms
+              <DropdownMenuItem asChild className="cursor-pointer text-right justify-end">
+                <Link href="/dashboard">
+                  <UserIcon className="ml-2 h-4 w-4" />
+                  نماذجي
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/settings" className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
+              <DropdownMenuItem asChild className="cursor-pointer text-right justify-end">
+                <Link href="/settings">
+                  <Settings className="ml-2 h-4 w-4" />
+                  الإعدادات
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign out
+              <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-red-600 text-right justify-end">
+                <LogOut className="ml-2 h-4 w-4" />
+                تسجيل الخروج
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

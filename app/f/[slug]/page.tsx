@@ -23,12 +23,12 @@ export async function generateMetadata({ params }: FormPageProps) {
   const form = data as { title: string; description: string | null } | null
 
   if (!form) {
-    return { title: 'Form Not Found' }
+    return { title: 'النموذج غير موجود' }
   }
 
   return {
-    title: form.title || 'Form',
-    description: form.description || 'Fill out this form',
+    title: form.title || 'نموذج',
+    description: form.description || 'قم بتعبئة هذا النموذج',
   }
 }
 

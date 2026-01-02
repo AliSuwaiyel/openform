@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 export default async function DashboardPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   const { data: formsData } = await supabase
     .from('forms')
     .select('*')
@@ -22,11 +22,11 @@ export default async function DashboardPage() {
 
   // Get response counts for each form
   const formIds = forms.map(f => f.id)
-  const { data: responseCounts } = formIds.length > 0 
+  const { data: responseCounts } = formIds.length > 0
     ? await supabase
-        .from('responses')
-        .select('form_id')
-        .in('form_id', formIds)
+      .from('responses')
+      .select('form_id')
+      .in('form_id', formIds)
     : { data: [] }
 
   const responseCountMap = new Map<string, number>()
@@ -39,13 +39,13 @@ export default async function DashboardPage() {
     <div className="max-w-7xl mx-auto px-6 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Forms</h1>
-          <p className="text-slate-600 mt-1">Create and manage your forms</p>
+          <h1 className="text-2xl font-bold text-slate-900">نماذجي</h1>
+          <p className="text-slate-600 mt-1">قم بإنشاء وإدارة نماذجك</p>
         </div>
         <Link href="/forms/new">
           <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30 hover:-translate-y-0.5">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Form
+            إنشاء نموذج
+            <Plus className="w-4 h-4 ml-2" />
           </Button>
         </Link>
       </div>
@@ -55,24 +55,24 @@ export default async function DashboardPage() {
           <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-sky-100 flex items-center justify-center shadow-lg shadow-blue-500/10">
             <FileText className="w-10 h-10 text-blue-500" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">Create your first form</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">أنشئ نموذجك الأول</h2>
           <p className="text-slate-600 mb-8 max-w-md mx-auto leading-relaxed">
-            Build beautiful, engaging forms that people actually want to fill out. One question at a time.
+            قم ببناء نماذج جميلة وجذابة يرغب الناس حقًا في تعبئتها. سؤال واحد في كل مرة.
           </p>
           <Link href="/forms/new">
             <Button size="lg" className="bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/25 transition-all hover:shadow-blue-600/35 hover:-translate-y-0.5">
-              <Plus className="w-5 h-5 mr-2" />
-              Create your first form
+              أنشئ نموذجك الأول
+              <Plus className="w-5 h-5 ml-2" />
             </Button>
           </Link>
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {forms.map((form) => (
-            <FormCard 
-              key={form.id} 
-              form={form} 
-              responseCount={responseCountMap.get(form.id) || 0} 
+            <FormCard
+              key={form.id}
+              form={form}
+              responseCount={responseCountMap.get(form.id) || 0}
             />
           ))}
         </div>
