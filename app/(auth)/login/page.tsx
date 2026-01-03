@@ -56,6 +56,18 @@ export default function LoginPage() {
         router.push('/dashboard')
       }
     } else {
+      // Password validation
+      const hasLowerCase = /[a-z]/.test(password)
+      const hasUpperCase = /[A-Z]/.test(password)
+      const hasNumber = /[0-9]/.test(password)
+      const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)
+
+      if (!hasLowerCase || !hasUpperCase || !hasNumber || !hasSpecial) {
+        toast.error('يجب أن تحتوي كلمة المرور على حرف صغير، حرف كبير، رقم، ورمز خاص واحد على الأقل')
+        setIsLoading(false)
+        return
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
