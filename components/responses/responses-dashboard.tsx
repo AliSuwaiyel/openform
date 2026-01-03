@@ -46,7 +46,16 @@ import {
   Image as ImageIcon,
   File,
   Eye,
+  LayoutDashboard,
+  Table as TableIcon
 } from 'lucide-react'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs'
+import { AnalyticsDashboard } from './analytics-dashboard'
 
 interface ResponsesDashboardProps {
   form: Form
@@ -281,114 +290,135 @@ export function ResponsesDashboard({ form, responses: initialResponses }: Respon
         </Card>
       ) : (
         <>
-          {/* Toolbar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="بحث في الردود..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pr-10"
-              />
+          {/* Tabs for Table and Analytics */}
+          <Tabs defaultValue="table" className="w-full">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+              <TabsList className="grid w-full md:w-[400px] grid-cols-2">
+                <TabsTrigger value="table" className="flex items-center gap-2">
+                  <TableIcon className="w-4 h-4" />
+                  الردود
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2">
+                  <LayoutDashboard className="w-4 h-4" />
+                  التحليلات
+                </TabsTrigger>
+              </TabsList>
+
+              <div className="flex items-center gap-4 flex-1 justify-end">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="بحث في الردود..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pr-10"
+                  />
+                </div>
+                <Button onClick={exportToCSV} variant="outline">
+                  <Download className="w-4 h-4 ml-2" />
+                  تصدير CSV
+                </Button>
+              </div>
             </div>
-            <Button onClick={exportToCSV} variant="outline">
-              <Download className="w-4 h-4 ml-2" />
-              تصدير CSV
-            </Button>
-          </div>
 
-          {/* Table */}
-          <Card className="overflow-hidden">
-            <ScrollArea className="w-full">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[180px] sticky right-0 bg-white z-10 pr-6 text-right">تاريخ التقديم</TableHead>
-                    {questions.map((question, index) => (
-                      <TableHead key={question.id} className="min-w-[200px] text-right">
-                        <span className="text-slate-400 ml-2">{index + 1}.</span>
-                        {question.title || 'بدون عنوان'}
-                        {question.required && <span className="text-red-500 mr-1">*</span>}
-                      </TableHead>
-                    ))}
-                    <TableHead className="w-[60px] sticky left-0 bg-white z-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredResponses.map((response) => {
-                    const answers = response.answers as Record<string, Json>
-                    return (
-                      <TableRow key={response.id}>
-                        <TableCell className="font-medium sticky right-0 bg-white z-10 pr-6 text-right">
-                          {formatDate(response.submitted_at)}
-                        </TableCell>
-                        {questions.map((question) => {
-                          const answer = answers[question.id]
-
-                          // Special rendering for file uploads
-                          if (isFileUpload(answer)) {
-                            const file = asFileUpload(answer)
-                            const isImage = file.type?.startsWith('image/')
-                            return (
-                              <TableCell key={question.id} className="max-w-[300px] text-right">
-                                <button
-                                  onClick={() => setFilePreview(file)}
-                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors text-sm group flex-row-reverse"
-                                >
-                                  {isImage ? (
-                                    <ImageIcon className="w-4 h-4" />
-                                  ) : (
-                                    <File className="w-4 h-4" />
-                                  )}
-                                  <span className="truncate max-w-[150px]">{file.name}</span>
-                                  <Eye className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </button>
-                              </TableCell>
-                            )
-                          }
-
-                          return (
-                            <TableCell key={question.id} className="max-w-[300px] truncate text-right">
-                              {formatAnswer(answer)}
-                            </TableCell>
-                          )
-                        })}
-                        <TableCell className="sticky left-0 bg-white z-10">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setResponseToDelete(response.id)
-                                  setDeleteDialogOpen(true)
-                                }}
-                                className="text-red-600 focus:text-red-600 text-right"
-                              >
-                                <Trash2 className="ml-2 h-4 w-4" />
-                                حذف الرد
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
+            <TabsContent value="table">
+              {/* Table */}
+              <Card className="overflow-hidden">
+                <ScrollArea className="w-full">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[180px] sticky right-0 bg-white z-10 pr-6 text-right">تاريخ التقديم</TableHead>
+                        {questions.map((question, index) => (
+                          <TableHead key={question.id} className="min-w-[200px] text-right">
+                            <span className="text-slate-400 ml-2">{index + 1}.</span>
+                            {question.title || 'بدون عنوان'}
+                            {question.required && <span className="text-red-500 mr-1">*</span>}
+                          </TableHead>
+                        ))}
+                        <TableHead className="w-[60px] sticky left-0 bg-white z-10"></TableHead>
                       </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredResponses.map((response) => {
+                        const answers = response.answers as Record<string, Json>
+                        return (
+                          <TableRow key={response.id}>
+                            <TableCell className="font-medium sticky right-0 bg-white z-10 pr-6 text-right">
+                              {formatDate(response.submitted_at)}
+                            </TableCell>
+                            {questions.map((question) => {
+                              const answer = answers[question.id]
 
-          {filteredResponses.length === 0 && searchQuery && (
-            <div className="text-center py-12">
-              <p className="text-slate-500">لا توجد ردود تطابق بحثك</p>
-            </div>
-          )}
+                              // Special rendering for file uploads
+                              if (isFileUpload(answer)) {
+                                const file = asFileUpload(answer)
+                                const isImage = file.type?.startsWith('image/')
+                                return (
+                                  <TableCell key={question.id} className="max-w-[300px] text-right">
+                                    <button
+                                      onClick={() => setFilePreview(file)}
+                                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors text-sm group flex-row-reverse"
+                                    >
+                                      {isImage ? (
+                                        <ImageIcon className="w-4 h-4" />
+                                      ) : (
+                                        <File className="w-4 h-4" />
+                                      )}
+                                      <span className="truncate max-w-[150px]">{file.name}</span>
+                                      <Eye className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </button>
+                                  </TableCell>
+                                )
+                              }
+
+                              return (
+                                <TableCell key={question.id} className="max-w-[300px] truncate text-right">
+                                  {formatAnswer(answer)}
+                                </TableCell>
+                              )
+                            })}
+                            <TableCell className="sticky left-0 bg-white z-10">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                  <DropdownMenuItem
+                                    onClick={() => {
+                                      setResponseToDelete(response.id)
+                                      setDeleteDialogOpen(true)
+                                    }}
+                                    className="text-red-600 focus:text-red-600 text-right"
+                                  >
+                                    <Trash2 className="ml-2 h-4 w-4" />
+                                    حذف الرد
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        )
+                      })}
+                    </TableBody>
+                  </Table>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              </Card>
+
+              {filteredResponses.length === 0 && searchQuery && (
+                <div className="text-center py-12">
+                  <p className="text-slate-500">لا توجد ردود تطابق بحثك</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <AnalyticsDashboard form={form} responses={responses} />
+            </TabsContent>
+          </Tabs>
         </>
       )}
 
