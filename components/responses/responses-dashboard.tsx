@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Form, Response, QuestionConfig, Json } from '@/lib/database.types'
 import { Button } from '@/components/ui/button'

@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { createClient } from '@/lib/supabase/client'
 import { Form, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
 import { questionTypes, createDefaultQuestion, getQuestionTypeInfo } from '@/lib/questions'
 import { themes, themeList } from '@/lib/themes'
