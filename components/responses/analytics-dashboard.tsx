@@ -91,7 +91,7 @@ export function AnalyticsDashboard({ form, responses }: AnalyticsDashboardProps)
     const totalResponses = responses.length
 
     const stats = useMemo(() => {
-        if (totalResponses === 0) return null
+        if (responses.length === 0) return null
 
         // Simple completion rate logic (if all required questions have answers)
         const requiredQuestions = questions.filter(q => q.required)
@@ -100,7 +100,7 @@ export function AnalyticsDashboard({ form, responses }: AnalyticsDashboardProps)
             return requiredQuestions.every(q => answers[q.id] !== null && answers[q.id] !== undefined)
         }).length
 
-        const completionRate = Math.round((completedResponses / totalResponses) * 100)
+        const completionRate = Math.round((completedResponses / responses.length) * 100)
 
         // Last submission time
         const lastSubmission = responses.length > 0
@@ -108,7 +108,7 @@ export function AnalyticsDashboard({ form, responses }: AnalyticsDashboardProps)
             : null
 
         return {
-            totalResponses,
+            totalResponses: responses.length,
             completionRate,
             lastSubmission: lastSubmission?.toLocaleString('ar-SA', {
                 month: 'short',

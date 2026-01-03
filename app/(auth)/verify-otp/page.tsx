@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Logo } from '@/components/ui/logo'
 import { toast } from 'sonner'
 import { motion } from 'framer-motion'
-import { KeyRound, Mail, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react'
+import { KeyRound, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react'
 
 function VerifyOtpContent() {
     const router = useRouter()

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Form, Response, QuestionConfig, Json } from '@/lib/database.types'
@@ -124,7 +124,6 @@ function formatFileSize(bytes: number): string {
 }
 
 export function ResponsesDashboard({ form, responses: initialResponses }: ResponsesDashboardProps) {
-  const router = useRouter()
   const supabase = createClient()
   const questions = (form.questions as QuestionConfig[]) || []
 

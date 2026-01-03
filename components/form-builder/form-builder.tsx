@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { createClient } from '@/lib/supabase/client'
 import { Form, QuestionConfig, ThemePreset, FormStatus } from '@/lib/database.types'
 import { questionTypes, createDefaultQuestion, getQuestionTypeInfo } from '@/lib/questions'
@@ -49,7 +49,6 @@ interface FormBuilderProps {
 }
 
 export function FormBuilder({ form: initialForm }: FormBuilderProps) {
-  const router = useRouter()
   const supabase = createClient()
 
   const [form, setForm] = useState(initialForm)
