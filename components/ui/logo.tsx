@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 interface LogoProps {
@@ -11,23 +12,23 @@ interface LogoProps {
 
 export function Logo({ href = '/', size = 'md', className }: LogoProps) {
   const sizes = {
-    sm: 'text-lg',
-    md: 'text-xl',
-    lg: 'text-2xl',
+    sm: { width: 100, height: 32 },
+    md: { width: 130, height: 42 },
+    lg: { width: 160, height: 52 },
   }
 
   const content = (
-    <span
+    <Image
+      src="/logo.png"
+      alt="OpenForm"
+      width={sizes[size].width}
+      height={sizes[size].height}
       className={cn(
-        sizes[size],
-        'font-bold tracking-tight text-blue-600',
-        'hover:text-blue-500 transition-colors',
+        'hover:opacity-80 transition-opacity',
         className
       )}
-    >
-      أوبن
-      <span className="font-extrabold text-slate-900">فورم</span>
-    </span>
+      priority
+    />
   )
 
   if (href) {

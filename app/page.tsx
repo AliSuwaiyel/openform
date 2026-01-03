@@ -87,9 +87,9 @@ export default async function HomePage() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-slate-900 leading-tight mb-6 tracking-tight">
-            نماذج تشعر وكأنها{' '}
+            استبيانات{' '}
             <span className="text-blue-600">
-              بشرية
+              مُذهلة
             </span>
           </h1>
 
