@@ -260,12 +260,12 @@ export default async function HomePage() {
             <a href="https://github.com" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
               جيت هاب
             </a>
-            <a href="#" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
+            <Link href="/privacy" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
               الخصوصية
-            </a>
-            <a href="#" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
+            </Link>
+            <Link href="/terms" className="text-slate-500 hover:text-slate-700 text-sm transition-colors">
               الشروط
-            </a>
+            </Link>
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
@@ -227,9 +228,9 @@ export default function LoginPage() {
 
         <p className="mt-8 text-center text-xs text-slate-400 leading-relaxed px-4">
           من خلال المتابعة، فإنك توافق على{' '}
-          <a href="#" className="underline hover:text-slate-600">شروط الخدمة</a>
+          <Link href="/terms" className="underline hover:text-slate-600 transition-colors">شروط الخدمة</Link>
           {' '}و{' '}
-          <a href="#" className="underline hover:text-slate-600">سياسة الخصوصية</a>
+          <Link href="/privacy" className="underline hover:text-slate-600 transition-colors">سياسة الخصوصية</Link>
         </p>
       </motion.div>
     </div>
