@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,13 +9,16 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Logo } from '@/components/ui/logo'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { KeyRound, Mail, ArrowRight, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
+  const [mode, setMode] = useState<'signIn' | 'signUp'>('signIn')
   const supabase = createClient()
+  const router = useRouter()
 
   const handleGoogleLogin = async () => {
     setIsLoading(true)
@@ -30,105 +34,84 @@ export default function LoginPage() {
     }
   }
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) {
-      toast.error('يرجى إدخال بريدك الإلكتروني')
+    if (!email || !password) {
+      toast.error('يرجى إدخال البريد الإلكتروني وكلمة المرور')
       return
     }
 
     setIsLoading(true)
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
 
-    if (error) {
-      toast.error('فشل إرسال الرابط السحري')
-      setIsLoading(false)
+    if (mode === 'signIn') {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        toast.error('بيانات التسجيل غير صحيحة')
+        setIsLoading(false)
+      } else {
+        router.push('/dashboard')
+      }
     } else {
-      setEmailSent(true)
-      setIsLoading(false)
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (error) {
+        toast.error(error.message || 'فشل إنشاء الحساب')
+        setIsLoading(false)
+      } else {
+        // If the user is unconfirmed, redirect to OTP verification
+        if (data.user && !data.session) {
+          router.push(`/verify-otp?email=${encodeURIComponent(email)}`)
+        } else {
+          router.push('/dashboard')
+        }
+      }
     }
   }
 
-  if (emailSent) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-        {/* Background */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.12) 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), linear-gradient(to bottom, #f8faff 0%, #ffffff 100%)",
-          }}
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="w-full max-w-md px-8 py-12 text-center relative z-10"
-        >
-          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/25">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">تحقق من بريدك الإلكتروني</h1>
-          <p className="text-slate-600 mb-6">
-            لقد أرسلنا رابطًا سحريًا إلى <strong className="text-slate-900">{email}</strong>
-          </p>
-          <p className="text-sm text-slate-500">
-            انقر على الرابط الموجود في بريدك الإلكتروني لتسجيل الدخول. يمكنك إغلاق هذه التبويب.
-          </p>
-          <button
-            onClick={() => setEmailSent(false)}
-            className="mt-6 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
-          >
-            استخدم بريدًا إلكترونيًا آخر
-          </button>
-        </motion.div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background */}
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-slate-50">
+      {/* Background Decor */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 z-0"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37, 99, 235, 0.12) 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 100% 100%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), linear-gradient(to bottom, #f8faff 0%, #ffffff 100%)",
-        }}
-      />
-
-      {/* Subtle grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          background: "radial-gradient(circle at 70% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 40%), radial-gradient(circle at 30% 80%, rgba(37, 99, 235, 0.05) 0%, transparent 40%)",
         }}
       />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md px-8 relative z-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-md px-4 py-8 relative z-10"
       >
         <div className="text-center mb-8">
-          <div className="flex justify-center">
+          <div className="flex justify-center mb-4">
             <Logo href="/" size="lg" />
           </div>
-          <p className="mt-3 text-slate-600">أنشئ نماذج جميلة في دقائق</p>
+          <h1 className="text-2xl font-bold text-slate-900">
+            {mode === 'signIn' ? 'مرحباً بك مجدداً' : 'إنشاء حساب جديد'}
+          </h1>
+          <p className="text-slate-500 mt-2">
+            {mode === 'signIn' ? 'سجل دخولك للمتابعة إلى نماذجك' : 'ابدأ بإنشاء نماذجك الاحترافية اليوم'}
+          </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
+        <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/60 p-8 border border-slate-100">
           <Button
             onClick={handleGoogleLogin}
             disabled={isLoading}
             variant="outline"
-            className="w-full h-12 text-base font-medium border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
+            className="w-full h-12 text-base font-medium border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all rounded-xl"
           >
             <svg className="w-5 h-5 ml-3" viewBox="0 0 24 24">
               <path
@@ -151,51 +134,90 @@ export default function LoginPage() {
             المتابعة باستخدام جوجل
           </Button>
 
-          <div className="relative my-6">
+          <div className="relative my-8">
             <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-sm text-slate-500">
-              أو
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              أو استخدم البريد
             </span>
           </div>
 
-          <form onSubmit={handleMagicLink} className="space-y-4">
+          <form onSubmit={handleEmailAuth} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-700">عنوان البريد الإلكتروني</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                className="h-12 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-              />
+              <Label htmlFor="email" className="text-slate-700 font-medium mr-1">البريد الإلكتروني</Label>
+              <div className="relative">
+                <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
+                  className="h-12 pl-4 pr-11 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl transition-all"
+                  dir="ltr"
+                />
+              </div>
             </div>
+
+            <div className="space-y-2">
+              <div className="flex justify-between items-center mr-1">
+                <Label htmlFor="password" title="password" className="text-slate-700 font-medium">كلمة المرور</Label>
+                {mode === 'signIn' && (
+                  <button type="button" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+                    نسيت كلمة المرور؟
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <KeyRound className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  className="h-12 pl-4 pr-11 text-base border-slate-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl transition-all"
+                  dir="ltr"
+                />
+              </div>
+            </div>
+
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 text-base font-medium bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30"
+              className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 transition-all hover:shadow-blue-600/30 rounded-xl"
             >
               {isLoading ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  جاري الإرسال...
+                <span className="flex items-center justify-center">
+                  <Loader2 className="animate-spin ml-2 h-5 w-5" />
+                  جاري المعالجة...
                 </span>
               ) : (
-                'إرسال رابط سحري'
+                <span className="flex items-center justify-center">
+                  {mode === 'signIn' ? 'تسجيل الدخول' : 'إنشاء حساب مجاني'}
+                  <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
+                </span>
               )}
             </Button>
           </form>
+
+          <p className="mt-8 text-center text-sm text-slate-500">
+            {mode === 'signIn' ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}{' '}
+            <button
+              onClick={() => setMode(mode === 'signIn' ? 'signUp' : 'signIn')}
+              className="text-blue-600 hover:text-blue-700 font-bold transition-colors"
+            >
+              {mode === 'signIn' ? 'سجل الآن' : 'سجل دخولك'}
+            </button>
+          </p>
         </div>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-8 text-center text-xs text-slate-400 leading-relaxed px-4">
           من خلال المتابعة، فإنك توافق على{' '}
-          <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">شروط الخدمة</a>
+          <a href="#" className="underline hover:text-slate-600">شروط الخدمة</a>
           {' '}و{' '}
-          <a href="#" className="text-blue-600 hover:text-blue-700 transition-colors">سياسة الخصوصية</a>
+          <a href="#" className="underline hover:text-slate-600">سياسة الخصوصية</a>
         </p>
       </motion.div>
     </div>
