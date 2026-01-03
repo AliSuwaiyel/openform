@@ -11,6 +11,9 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: "أوبن فورم - أنشئ نماذج جميلة",
   description: "قم ببناء نماذج مذهلة بأسلوب TypeForm في دقائق. مجاني ومفتوح المصدر.",
+  verification: {
+    google: "K5CGAgOeqTb2TYx35RT7JzOB6TvMGbF-TZAd3p-wWAM",
+  },
 };
 
 export default function RootLayout({
